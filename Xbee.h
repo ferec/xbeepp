@@ -97,12 +97,11 @@ class Xbee
 
         xbee_port_function getPortFunction(xbee_port port);
 
-        virtual void setPortFunction(xbee_port port, xbee_port_function fnc);
         virtual void configurePortFunction(xbee_port port, xbee_port_function fnc) = 0;
 
         std::string getCommandForPort(xbee_port port);
 
-        virtual void print();
+        virtual void print(bool debug);
 
         bool getDigitalValue(uint8_t index);
         void setDigitalValue(uint8_t index, bool value);
@@ -117,6 +116,8 @@ class Xbee
         uint16_t getValueVR() { return valueVR; }
         uint16_t getValueID() { return valueID; }
         uint8_t getValueAO() { return valueAO; }
+
+        virtual void setPortFunction(xbee_port port, xbee_port_function fnc);
 
         uint8_t nextFrameId() { return ++lastFrame; }
 

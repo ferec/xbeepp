@@ -150,6 +150,8 @@ void SerialPort::writeData(uint8_t *buffer, size_t len)
     size_t have=0;
     int l;
 
+//    cout << "write:" << len << endl;
+//    hex_dump(buffer, len);
     lock_guard<mutex> blWr(m_write);
 //    lock();
     do
@@ -183,8 +185,8 @@ void SerialPort::readData(uint8_t *buffer, size_t len)
 
         if (l>0)
         {
-            cout << "read:" << l;
-            hex_dump(buffer+have, l);
+//            cout << "read:" << l << endl;
+//            hex_dump(buffer+have, l);
             have+=l;
         }
 
@@ -192,7 +194,7 @@ void SerialPort::readData(uint8_t *buffer, size_t len)
 
     if (l == -1)
     {
-        cerr << "read error" << endl;
+//        cerr << "read error" << endl;
         throw runtime_error(strerror(errno));
     }
 }

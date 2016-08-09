@@ -40,16 +40,20 @@ uint16_t XbeeFrameDiscovery::getAddrParent()
     return disc2->addr_parent[0]*0x100+disc2->addr_parent[1];
 }
 
-void XbeeFrameDiscovery::print()
+void XbeeFrameDiscovery::print(bool debug)
 {
-    XbeeFrameCommandResponse::print();
+    XbeeFrameCommandResponse::print(debug);
 
-    cout << "Network ID:" << getNetworkID() << endl;
-    cout << "Parent:" << hex << getAddrParent() << endl;
-    cout << "Device type:" << getDeviceTypeName() << endl;
-    cout << "Device status:" << (int)getStatus() << endl;
-    cout << "Profile ID:" << getProfileId() << endl;
-    cout << "Manufacturer:" << getManufacturer() << endl;
+    if (debug)
+    {
+        cout << "Network ID:" << getNetworkID() << endl;
+        cout << "Parent:" << hex << getAddrParent() << endl;
+        cout << "Device type:" << getDeviceTypeName() << endl;
+        cout << "Device status:" << (int)getStatus() << endl;
+        cout << "Profile ID:" << getProfileId() << endl;
+        cout << "Manufacturer:" << getManufacturer() << endl;
+    } else
+        cout << "Discovered " << getAddress().toString() << endl;
 
 //    XbeeLocal::hex_dump(disc1, getRawDataSize());
 }

@@ -23,9 +23,10 @@ string XbeeFrameRemoteCommandResponse::getCommand()
     return string(frm_data->cmd, 2);
 }
 
-void XbeeFrameRemoteCommandResponse::print()
+void XbeeFrameRemoteCommandResponse::print(bool debug)
 {
-    XbeeFrame::print();
+    XbeeFrame::print(debug);
+
     cout << "Response to remote " << getCommand() << " command ID " << (int)getFrameId() << " with result " << getStatusName();
     if (getReturnDataLength() == 4)
         cout << " (value=" << getWordValue() << ")";

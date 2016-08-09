@@ -10,6 +10,7 @@
 
 #include <vector>
 #include <thread>
+#include <mutex>
 
 #define XBEE_CMD_AP "AP"
 #define XBEE_CMD_AO "AO"
@@ -20,7 +21,7 @@
 #define XBEE_CMD_MY "MY"
 #define XBEE_CMD_ND "ND"
 
-//class XbeeRemote;
+#define DEBUG false
 
 class XbeeLocal:public Xbee
 {
@@ -33,13 +34,15 @@ class XbeeLocal:public Xbee
         XbeeAddress& getAddress();
 
         void initialize();
+        bool isInitialized() { return initialized; }
+
         void uninit();
 
         virtual ~XbeeLocal();
 
 //        static void hex_dump( const void *address, uint16_t length);
 
-        virtual void print();
+        virtual void print(bool debug);
 
         virtual bool isLocal(XbeeAddress &addr);
         virtual bool isDiscovered(XbeeAddress &addr);

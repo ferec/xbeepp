@@ -27,7 +27,7 @@ XbeeAddress& Xbee::getAddress()
     return addr;
 }
 
-void Xbee::print()
+void Xbee::print(bool debug)
 {
     cout << "Address=" << addr.toString() << endl;
     cout << "API enabled(AP)=" << (int)valueAP << endl;

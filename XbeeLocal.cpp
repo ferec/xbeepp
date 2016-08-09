@@ -34,6 +34,7 @@ void XbeeLocal::writeFrame(XbeeFrame &frame)
 
 void XbeeLocal::readFrameData(XbeeFrame::frame *buffer)
 {
+//    cout << "readFrameData start" << endl;
     lock_guard<mutex> blRd(mSerial);
     XbeeFrame::frame *header = reinterpret_cast<XbeeFrame::frame*>(buffer);
     port.wait4Char(XBEE_PACKET_START);
@@ -62,6 +63,7 @@ void XbeeLocal::readFrameData(XbeeFrame::frame *buffer)
     } while(have == 3);
 
     port.readData(header->data, XbeeFrame::getDataSize(*header));
+//    cout << "readFrameData finish" << endl;
 }
 
 void XbeeLocal::readAndProcessFrames()
@@ -74,7 +76,7 @@ void XbeeLocal::readAndProcessFrames()
 
         readFrameData(&buffer);
 
-        cout << "readAndProcessFrames 1" << endl;
+//        cout << "readAndProcessFrames 1" << endl;
         XbeeFrame *f = XbeeFrame::createFrame(&buffer);
 
 //        hex_dump(&buffer, 0x20);
@@ -101,7 +103,7 @@ void XbeeLocal::readAndProcessFrames()
 void* XbeeLocal::reader(void *arg)
 //void XbeeLocal::readerM()
 {
-    cout << "thread" << endl;
+//    cout << "thread" << endl;
 //    cout << "INFO:reader thread started" << endl;
     XbeeLocal *xbee = static_cast<XbeeLocal*>(arg);
 //    XbeeLocal *xbee = this;
@@ -159,12 +161,20 @@ void XbeeLocal::processFrame(XbeeFrame *frm)
     XbeeFrameDiscovery *dsc = dynamic_cast<XbeeFrameDiscovery*>(frm);
 
     if (dsc != NULL)
+    {
         registerXbee(dsc);
+        dsc->print(DEBUG);
+        return;
+    }
 
     XbeeFrameCommandResponse *resp = dynamic_cast<XbeeFrameCommandResponse*>(frm);
 
     if (resp != NULL)
-        cout << "Response to " << resp->getCommand() << " with status " << resp->getStatusName() << endl;
+    {
+        cout << "TODO: Bind response to request!" << endl;
+        resp->print(DEBUG);
+        return;
+    }
 
     XbeeFrameRemoteCommandResponse *rresp = dynamic_cast<XbeeFrameRemoteCommandResponse*>(frm);
 
@@ -176,6 +186,8 @@ void XbeeLocal::processFrame(XbeeFrame *frm)
 
         if (remote != NULL)
             remote->responseReceived(rresp);
+
+        return;
     }
 
     XbeeFrameDataSample *sample = dynamic_cast<XbeeFrameDataSample*>(frm);
@@ -183,8 +195,11 @@ void XbeeLocal::processFrame(XbeeFrame *frm)
     {
 //        hex_dump(&sample->frm.data, frm->getFullSize());
 //        sample->print();
-        cout << "Data sample received from " << sample->getAddress().toString() << endl;
+//        cout << "Data sample received from " << sample->getAddress().toString() << endl;
+
     }
+
+    frm->print(DEBUG);
 }
 
 void XbeeLocal::initialize()
@@ -205,15 +220,15 @@ void XbeeLocal::initialize()
 
     initialized = true;
 
-    cout << "INFO:state updated" << endl;
+//    cout << "INFO:state updated" << endl;
     pthread_create(&thReader, NULL, reader, this);
 
 //    bgThread = thread(&XbeeLocal::readerM, this);
-    cout << "thread created" << endl;
+//    cout << "thread created" << endl;
 
     discover();
 
-    cout << "discover started" << endl;
+//    cout << "discover started" << endl;
 
 //    cout << "INFO:finished initialize" << endl;
 }
@@ -263,10 +278,13 @@ uint64_t XbeeLocal::commandWithResponse(string cmd, XbeeFrameCommandResponse::re
             last = time(0);
         }
 
-        cout << "frm:" << &resp.frm << endl;
-        readFrameData(&resp.frm);
+        if (isInitialized())
+            throw runtime_error("should be handled in async mode");
 
-        resp.print();
+        readFrameData(&resp.frm);
+//        cout << "frm:" << &resp.frm << endl;
+
+        resp.print(DEBUG);
         resp.validate();
 
 //        hex_dump(reinterpret_cast<unsigned char*>(&resp.frm), resp.getFullSize());
@@ -347,18 +365,19 @@ XbeeAddress& XbeeLocal::getAddress()
     return Xbee::getAddress();
 }
 
-void XbeeLocal::print()
+void XbeeLocal::print(bool debug)
 {
-    Xbee::print();
+    Xbee::print(debug);
     if (discovered.size() > 0)
     {
         cout << "discovered devices:" << endl;
         for (auto it=discovered.begin();it!=discovered.end(); it++)
-            (*it)->print();
+            (*it)->print(debug);
     }
 }
 
 void XbeeLocal::configurePortFunction(xbee_port port, xbee_port_function fnc)
 {
     sendCommandWithParameter(getCommandForPort(port), static_cast<uint8_t>(fnc));
+    setPortFunction(port, fnc);
 }

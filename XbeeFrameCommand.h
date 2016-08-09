@@ -26,7 +26,7 @@ class XbeeFrameCommand : public XbeeFrame
             uint8_t crc_with_param;
         };
 
-        virtual void print();
+        virtual void print(bool debug);
         uint8_t getFrameId() { return frm_data->frame_id; }
 //        uint8_t getCrc();
     protected:

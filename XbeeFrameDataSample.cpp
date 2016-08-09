@@ -23,29 +23,33 @@ XbeeAddress XbeeFrameDataSample::getAddress()
     return XbeeAddress(*ad, *(ad+1), frm_data->addr_net[0]*0x100+frm_data->addr_net[1]);
 }
 
-void XbeeFrameDataSample::print()
+void XbeeFrameDataSample::print(bool debug)
 {
-    XbeeFrame::print();
+    XbeeFrame::print(debug);
 
-    cout << "Address:" << getAddress().toString() << endl;
-    cout << "Options:" << hex << (int)getReceiveOptions() << endl;
-    cout << "Nr of samples:" << hex << (int)getNrSamples() << endl;
-    cout << "Digital mask:" << bitset<16>(getDigitalMask()) << endl;
+    if (debug)
+    {
+        cout << "Address:" << getAddress().toString() << endl;
+        cout << "Options:" << hex << (int)getReceiveOptions() << endl;
+        cout << "Nr of samples:" << hex << (int)getNrSamples() << endl;
+        cout << "Digital mask:" << bitset<16>(getDigitalMask()) << endl;
 
-    uint8_t amask = getAnalogMask();
-    cout << "Analog mask:" << bitset<8>(amask) << endl;
+        uint8_t amask = getAnalogMask();
+        cout << "Analog mask:" << bitset<8>(amask) << endl;
 
-    if (getDigitalMask())
-        cout << "Digital values:" << bitset<16>(getDigitalValues()) << endl;
+        if (getDigitalMask())
+            cout << "Digital values:" << bitset<16>(getDigitalValues()) << endl;
 
-    if (amask & 1)
-        cout << "ADC0:" << getAnalogValue(0) << endl;
-    if (amask & 2)
-        cout << "ADC1:" << getAnalogValue(1) << endl;
-    if (amask & 4)
-        cout << "ADC2:" << getAnalogValue(2) << endl;
-    if (amask & 8)
-        cout << "ADC3:" << getAnalogValue(3) << endl;
+        if (amask & 1)
+            cout << "ADC0:" << getAnalogValue(0) << endl;
+        if (amask & 2)
+            cout << "ADC1:" << getAnalogValue(1) << endl;
+        if (amask & 4)
+            cout << "ADC2:" << getAnalogValue(2) << endl;
+        if (amask & 8)
+            cout << "ADC3:" << getAnalogValue(3) << endl;
+    } else
+        cout << "Samples received from " << getAddress().toString() << endl;
 
 //    XbeeLocal::hex_dump(disc1, getRawDataSize());
 }

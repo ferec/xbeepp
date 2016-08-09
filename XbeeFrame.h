@@ -37,7 +37,7 @@ class XbeeFrame
         XbeeFrame::XbeeApiType getType();
         std::string getTypeName();
 
-        virtual void print();
+        virtual void print(bool debug);
 
         uint8_t checksum ( const void *bytes, uint_fast8_t length, uint_fast8_t initial);
         virtual uint8_t getCrc();

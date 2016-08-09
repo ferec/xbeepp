@@ -91,20 +91,27 @@ void XbeeFrameCommandResponse::getRawValue(uint8_t *buffer, size_t buflen)
     memcpy(buffer, frm_data->value, len);
 }
 
-void XbeeFrameCommandResponse::print()
+void XbeeFrameCommandResponse::print(bool debug)
 {
-    XbeeFrame::print();
-    cout << "Frame ID:" << hex << (int)frm_data->frame_id << endl;
-    cout << "Command:" << frm_data->cmd[0] << frm_data->cmd[1] << endl;
-    cout << "Status:" << getStatusName() << endl;
-    if (hasByteData())
-        cout << "Value(byte):" << (unsigned int)getByteValue() << endl;
-    if (hasShortData())
-        cout << "Value(short):" << (unsigned int)getShortValue() << endl;
-    if (hasWordData())
-        cout << "Value(32bit):" << getWordValue() << endl;
-    if (hasLongData())
-        cout << "Value(64bit):" << getLongValue() << endl;
+    XbeeFrame::print(debug);
+
+    if (debug)
+    {
+        cout << "Frame ID:" << hex << (int)frm_data->frame_id << endl;
+        cout << "Command:" << frm_data->cmd[0] << frm_data->cmd[1] << endl;
+        cout << "Status:" << getStatusName() << endl;
+        if (hasByteData())
+            cout << "Value(byte):" << (unsigned int)getByteValue() << endl;
+        if (hasShortData())
+            cout << "Value(short):" << (unsigned int)getShortValue() << endl;
+        if (hasWordData())
+            cout << "Value(32bit):" << getWordValue() << endl;
+        if (hasLongData())
+            cout << "Value(64bit):" << getLongValue() << endl;
+    }
+    else
+        cout << "Response to " << frm_data->cmd[0] << frm_data->cmd[1] << " with result " << getStatusName() << " (Frame ID:" << hex << (int)frm_data->frame_id << ")" << endl;
+
 /*    if (hasRawData())
     {
         cout << "Value(raw):" << endl;

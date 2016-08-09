@@ -1,4 +1,5 @@
 #include "XbeeFrameRemoteCommand.h"
+#include <iostream>
 
 using namespace std;
 
@@ -31,4 +32,11 @@ void XbeeFrameRemoteCommand::setData(string cmd, uint8_t frmId)
     frm_data->cmd[0] = cmd[0];
     frm_data->cmd[1] = cmd[1];
     frm_data->options = 2; // Apply changes on remote
+}
+
+void XbeeFrameRemoteCommand::print(bool debug)
+{
+    XbeeFrame::print(debug);
+
+    cout << "Remote command " << frm_data->cmd[0] << frm_data->cmd[1] << " to " << getAddress().toString() << " (Frame ID:" << hex << (int)frm_data->frame_id << ")" << endl;
 }

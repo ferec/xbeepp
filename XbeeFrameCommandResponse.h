@@ -27,7 +27,7 @@ class XbeeFrameCommandResponse : public XbeeFrame
             uint8_t value[0];
         };
 
-        virtual void print();
+        virtual void print(bool debug);
 
         Xbee::xbee_payload_at_cmd_status getStatus();
         std::string getStatusName();

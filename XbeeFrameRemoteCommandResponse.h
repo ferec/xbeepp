@@ -35,7 +35,7 @@ class XbeeFrameRemoteCommandResponse : public XbeeFrame
         uint32_t getWordValue();
         uint64_t getLongValue();
 
-        virtual void print();
+        virtual void print(bool debug);
 
     protected:
     private:

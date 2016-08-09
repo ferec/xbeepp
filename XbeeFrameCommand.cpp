@@ -30,11 +30,11 @@ void XbeeFrameCommand::setData(string cmd, uint8_t frmId)
     frm_data->cmd[1] = cmd[1];
 }
 
-void XbeeFrameCommand::print()
+void XbeeFrameCommand::print(bool debug)
 {
-    XbeeFrame::print();
-    cout << "Frame ID:" << hex << (int)frm_data->frame_id << endl;
-    cout << "Command:" << frm_data->cmd[0] << frm_data->cmd[1] << endl;
+    XbeeFrame::print(debug);
+
+    cout << "Command " << frm_data->cmd[0] << frm_data->cmd[1] << " (Frame ID:" << hex << (int)frm_data->frame_id << ")" << endl;
 }
 
 /*

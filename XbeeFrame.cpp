@@ -89,16 +89,19 @@ string XbeeFrame::getTypeName()
     }
 }
 
-void XbeeFrame::print()
+void XbeeFrame::print(bool debug)
 {
-    cout << "Frame:" << getTypeName() << endl;
-    cout << "Data size:" << getDataSize() << endl;
-    cout << "Full size:" << getFullSize() << endl;
-    cout << "Calculated CRC:" << hex << (int)calculateCrc() << endl;
-    cout << "CRC:" << hex << (int)getCrc() << endl;
+    if (debug)
+    {
+        cout << "Frame:" << getTypeName() << endl;
+        cout << "Data size:" << getDataSize() << endl;
+        cout << "Full size:" << getFullSize() << endl;
+        cout << "Calculated CRC:" << hex << (int)calculateCrc() << endl;
+        cout << "CRC:" << hex << (int)getCrc() << endl;
+    }
 
-    cout << "print frm:" << &frm << endl;
-    hex_dump(&frm, getFullSize());
+//    cout << "print frm:" << &frm << endl;
+//    hex_dump(&frm, getFullSize());
 }
 
 uint8_t XbeeFrame::checksum ( const void *bytes, uint_fast8_t length,

@@ -164,7 +164,7 @@
 
 1470652014 /home/ferec/workspace/xbee2/utils.h
 
-1470701714 source:/home/ferec/workspace/xbee/SerialPort.cpp
+1470727205 source:/home/ferec/workspace/xbee/SerialPort.cpp
 	"SerialPort.h"
 	"utils.h"
 	<iostream>
@@ -189,7 +189,7 @@
 	"XbeeLocal.h"
 	"XbeeRemote.h"
 
-1470702657 /home/ferec/workspace/xbee/XbeeLocal.h
+1470727456 /home/ferec/workspace/xbee/XbeeLocal.h
 	"SerialPort.h"
 	"XbeeFrame.h"
 	"XbeeFrameCommandResponse.h"
@@ -198,16 +198,17 @@
 	"XbeeRemote.h"
 	<vector>
 	<thread>
+	<mutex>
 
-1459837662 /home/ferec/workspace/xbee/XbeeFrame.h
+1470727437 /home/ferec/workspace/xbee/XbeeFrame.h
 	<inttypes.h>
 	<string>
 
-1459837662 /home/ferec/workspace/xbee/XbeeFrameCommandResponse.h
+1470727437 /home/ferec/workspace/xbee/XbeeFrameCommandResponse.h
 	"XbeeFrame.h"
 	"Xbee.h"
 
-1459837662 /home/ferec/workspace/xbee/Xbee.h
+1470727436 /home/ferec/workspace/xbee/Xbee.h
 	"XbeeAddress.h"
 	<bitset>
 
@@ -215,7 +216,7 @@
 	<inttypes.h>
 	<string>
 
-1459837662 /home/ferec/workspace/xbee/XbeeFrameDiscovery.h
+1470727437 /home/ferec/workspace/xbee/XbeeFrameDiscovery.h
 	"XbeeFrameCommandResponse.h"
 	"XbeeAddress.h"
 
@@ -225,11 +226,11 @@
 	"XbeeFrameRemoteCommandResponse.h"
 	<map>
 
-1459837662 /home/ferec/workspace/xbee/XbeeFrameRemoteCommandResponse.h
+1470727437 /home/ferec/workspace/xbee/XbeeFrameRemoteCommandResponse.h
 	"XbeeFrame.h"
 	"Xbee.h"
 
-1470700897 source:/home/ferec/workspace/xbee/utils.cpp
+1470727097 source:/home/ferec/workspace/xbee/utils.cpp
 	<inttypes.h>
 	<string>
 	<string.h>
@@ -237,7 +238,7 @@
 	<iostream>
 	<stdlib.h>
 
-1459837665 source:/home/ferec/workspace/xbee/Xbee.cpp
+1470727436 source:/home/ferec/workspace/xbee/Xbee.cpp
 	"Xbee.h"
 	<stdexcept>
 	<iostream>
@@ -252,7 +253,7 @@
 	<iostream>
 	<iomanip>
 
-1470701293 source:/home/ferec/workspace/xbee/XbeeFrame.cpp
+1470727485 source:/home/ferec/workspace/xbee/XbeeFrame.cpp
 	"XbeeFrame.h"
 	"XbeeFrameCommandResponse.h"
 	"XbeeFrameRemoteCommandResponse.h"
@@ -264,19 +265,19 @@
 	<stdlib.h>
 	"utils.h"
 
-1459837662 /home/ferec/workspace/xbee/XbeeFrameDataSample.h
+1470727436 /home/ferec/workspace/xbee/XbeeFrameDataSample.h
 	"XbeeFrame.h"
 	"XbeeAddress.h"
 
-1459837665 source:/home/ferec/workspace/xbee/XbeeFrameCommand.cpp
+1470727570 source:/home/ferec/workspace/xbee/XbeeFrameCommand.cpp
 	"XbeeFrameCommand.h"
 	<iostream>
 
-1459837662 /home/ferec/workspace/xbee/XbeeFrameCommand.h
+1470727437 /home/ferec/workspace/xbee/XbeeFrameCommand.h
 	"XbeeFrame.h"
 	<string>
 
-1459837665 source:/home/ferec/workspace/xbee/XbeeFrameCommandResponse.cpp
+1470727678 source:/home/ferec/workspace/xbee/XbeeFrameCommandResponse.cpp
 	"XbeeFrameCommandResponse.h"
 	"XbeeFrameDiscovery.h"
 	"XbeeLocal.h"
@@ -286,27 +287,28 @@
 	<string.h>
 	<stddef.h>
 
-1459837665 source:/home/ferec/workspace/xbee/XbeeFrameDataSample.cpp
+1470727740 source:/home/ferec/workspace/xbee/XbeeFrameDataSample.cpp
 	"XbeeFrameDataSample.h"
 	<iostream>
 	<bitset>
 	<stdexcept>
 
-1459837665 source:/home/ferec/workspace/xbee/XbeeFrameDiscovery.cpp
+1470727836 source:/home/ferec/workspace/xbee/XbeeFrameDiscovery.cpp
 	"XbeeFrameDiscovery.h"
 	"XbeeLocal.h"
 	<iostream>
 	<sstream>
 	<stdexcept>
 
-1459837665 source:/home/ferec/workspace/xbee/XbeeFrameRemoteCommand.cpp
+1470727958 source:/home/ferec/workspace/xbee/XbeeFrameRemoteCommand.cpp
 	"XbeeFrameRemoteCommand.h"
+	<iostream>
 
-1459837662 /home/ferec/workspace/xbee/XbeeFrameRemoteCommand.h
+1470728011 /home/ferec/workspace/xbee/XbeeFrameRemoteCommand.h
 	"XbeeFrame.h"
 	"XbeeAddress.h"
 
-1470701146 source:/home/ferec/workspace/xbee/XbeeFrameRemoteCommandResponse.cpp
+1470728089 source:/home/ferec/workspace/xbee/XbeeFrameRemoteCommandResponse.cpp
 	"XbeeFrameRemoteCommandResponse.h"
 	<iostream>
 	<sstream>
@@ -320,7 +322,7 @@
 	<iostream>
 	<stdexcept>
 
-1470701861 source:/home/ferec/workspace/xbee/XbeeLocal.cpp
+1470727437 source:/home/ferec/workspace/xbee/XbeeLocal.cpp
 	"XbeeLocal.h"
 	"XbeeRemote.h"
 	"XbeeFrameCommand.h"

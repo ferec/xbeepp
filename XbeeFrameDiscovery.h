@@ -11,7 +11,7 @@ class XbeeFrameDiscovery : public XbeeFrameCommandResponse
         XbeeFrameDiscovery(XbeeFrame::frame *frmData);
         virtual ~XbeeFrameDiscovery();
 
-        virtual void print();
+        virtual void print(bool debug);
 
         struct discovery_data_1 {
             uint8_t addr_net[2];

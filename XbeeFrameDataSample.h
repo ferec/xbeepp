@@ -31,7 +31,7 @@ class XbeeFrameDataSample : public XbeeFrame
         uint16_t getDigitalValues();
         uint16_t getAnalogValue(uint8_t index);
 
-        void print();
+        void print(bool debug);
     protected:
     private:
         frame_sample *frm_data;
