@@ -13,5 +13,5 @@ requirements:
 - 1 local xbee plugged in USB (default /dev/ttyUSB0, see test.cpp)
 - c++11 compiler
 - code:blocks for compilation (I use it for development) or create a custom makefile (please share it with others)
-- 
 
+If you have any question, or need some feature, feel free to ask.
