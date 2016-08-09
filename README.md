@@ -1,5 +1,5 @@
 # xbeepp
-xbee handling library in C++
+xbee handling library in C++, used in andam iControl. For details see www.andam-systems.com
 
 features:
 - basic device discovery - must be already on the same network PAN ID
