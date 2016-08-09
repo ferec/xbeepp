@@ -25,6 +25,7 @@ string XbeeFrameRemoteCommandResponse::getCommand()
 
 void XbeeFrameRemoteCommandResponse::print()
 {
+    XbeeFrame::print();
     cout << "Response to remote " << getCommand() << " command ID " << (int)getFrameId() << " with result " << getStatusName();
     if (getReturnDataLength() == 4)
         cout << " (value=" << getWordValue() << ")";
@@ -62,5 +63,6 @@ uint32_t XbeeFrameRemoteCommandResponse::getWordValue()
 XbeeAddress XbeeFrameRemoteCommandResponse::getAddress()
 {
     uint32_t *ad = reinterpret_cast<uint32_t*>(frm_data->addr);
+    cout << "ad=" << frm_data << endl;
     return XbeeAddress(be32toh(*ad), be32toh(*(ad+1)), frm_data->addr_net[0]*0x100+frm_data->addr_net[1]);
 }

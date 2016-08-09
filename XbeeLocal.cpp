@@ -9,10 +9,10 @@
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
-#include <thread>
 
 #include <string.h>
 #include <stdio.h>
+#include <unistd.h>
 
 using namespace std;
 
@@ -23,25 +23,18 @@ XbeeLocal::XbeeLocal():initialized(false)
 
 XbeeLocal::~XbeeLocal()
 {
-    //dtor
 }
 
 void XbeeLocal::writeFrame(XbeeFrame &frame)
 {
-//    unsigned char buf[1] = {XBEE_PACKET_START};
-//    port.writeData(buf, 1);
+    lock_guard<mutex> blWr(mSerial);
+
     port.writeData(reinterpret_cast<unsigned char*>(&frame.frm), frame.getFullSize());
-
-//    cout << "write:" << endl;
-//    hex_dump(reinterpret_cast<unsigned char*>(&frame.frm), frame.getFullSize());
-
-//    cout << &frame.frm << endl;
-//    cout << (void*)&frame.frm.length_msb << endl;
-//    cout << (void*)&frame.frm.length_lsb << endl;
 }
 
 void XbeeLocal::readFrameData(XbeeFrame::frame *buffer)
 {
+    lock_guard<mutex> blRd(mSerial);
     XbeeFrame::frame *header = reinterpret_cast<XbeeFrame::frame*>(buffer);
     port.wait4Char(XBEE_PACKET_START);
 
@@ -81,7 +74,7 @@ void XbeeLocal::readAndProcessFrames()
 
         readFrameData(&buffer);
 
-//        cout << "readAndProcessFrames 1" << endl;
+        cout << "readAndProcessFrames 1" << endl;
         XbeeFrame *f = XbeeFrame::createFrame(&buffer);
 
 //        hex_dump(&buffer, 0x20);
@@ -105,14 +98,17 @@ void XbeeLocal::readAndProcessFrames()
     }
 }
 
-//void* XbeeLocal::reader(void *arg)
-void XbeeLocal::readerM()
+void* XbeeLocal::reader(void *arg)
+//void XbeeLocal::readerM()
 {
-//    cout << "INFO:reader thread started" << endl;
-//    XbeeLocal *xbee = static_cast<XbeeLocal*>(arg);
-    XbeeLocal *xbee = this;
-
     cout << "thread" << endl;
+//    cout << "INFO:reader thread started" << endl;
+    XbeeLocal *xbee = static_cast<XbeeLocal*>(arg);
+//    XbeeLocal *xbee = this;
+
+
+    usleep(1000000);
+
     while(true)
     {
         xbee->readAndProcessFrames();
@@ -120,7 +116,7 @@ void XbeeLocal::readerM()
 
 //    cout << "INFO:reader thread finished" << endl;
 
-//    return NULL;
+    return NULL;
 }
 
 void XbeeLocal::registerXbee(XbeeFrameDiscovery *dsc)
@@ -209,14 +205,23 @@ void XbeeLocal::initialize()
 
     initialized = true;
 
-//    cout << "INFO:state updated" << endl;
-//    pthread_create(&thReader, NULL, reader, this);
+    cout << "INFO:state updated" << endl;
+    pthread_create(&thReader, NULL, reader, this);
 
-    thread t1(&XbeeLocal::readerM, this);
+//    bgThread = thread(&XbeeLocal::readerM, this);
+    cout << "thread created" << endl;
 
     discover();
 
+    cout << "discover started" << endl;
+
 //    cout << "INFO:finished initialize" << endl;
+}
+
+void XbeeLocal::uninit()
+{
+//    bgThread.join();
+    pthread_join(thReader, NULL);
 }
 
 void XbeeLocal::discover()

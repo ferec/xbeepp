@@ -164,7 +164,7 @@
 
 1470652014 /home/ferec/workspace/xbee2/utils.h
 
-1470692614 source:/home/ferec/workspace/xbee/SerialPort.cpp
+1470701714 source:/home/ferec/workspace/xbee/SerialPort.cpp
 	"SerialPort.h"
 	"utils.h"
 	<iostream>
@@ -174,7 +174,7 @@
 	<string.h>
 	<unistd.h>
 
-1470692543 /home/ferec/workspace/xbee/SerialPort.h
+1470692688 /home/ferec/workspace/xbee/SerialPort.h
 	<termios.h>
 	<inttypes.h>
 	<string>
@@ -182,14 +182,14 @@
 
 1470652014 /home/ferec/workspace/xbee/utils.h
 
-1470404377 source:/home/ferec/workspace/xbee/test.cpp
+1470698059 source:/home/ferec/workspace/xbee/test.cpp
 	<iostream>
 	<stdexcept>
 	<unistd.h>
 	"XbeeLocal.h"
 	"XbeeRemote.h"
 
-1470692018 /home/ferec/workspace/xbee/XbeeLocal.h
+1470702657 /home/ferec/workspace/xbee/XbeeLocal.h
 	"SerialPort.h"
 	"XbeeFrame.h"
 	"XbeeFrameCommandResponse.h"
@@ -197,6 +197,7 @@
 	"Xbee.h"
 	"XbeeRemote.h"
 	<vector>
+	<thread>
 
 1459837662 /home/ferec/workspace/xbee/XbeeFrame.h
 	<inttypes.h>
@@ -228,11 +229,13 @@
 	"XbeeFrame.h"
 	"Xbee.h"
 
-1470485742 source:/home/ferec/workspace/xbee/utils.cpp
+1470700897 source:/home/ferec/workspace/xbee/utils.cpp
 	<inttypes.h>
 	<string>
 	<string.h>
 	<stdio.h>
+	<iostream>
+	<stdlib.h>
 
 1459837665 source:/home/ferec/workspace/xbee/Xbee.cpp
 	"Xbee.h"
@@ -249,7 +252,7 @@
 	<iostream>
 	<iomanip>
 
-1470689891 source:/home/ferec/workspace/xbee/XbeeFrame.cpp
+1470701293 source:/home/ferec/workspace/xbee/XbeeFrame.cpp
 	"XbeeFrame.h"
 	"XbeeFrameCommandResponse.h"
 	"XbeeFrameRemoteCommandResponse.h"
@@ -258,6 +261,7 @@
 	<sstream>
 	<iostream>
 	<string.h>
+	<stdlib.h>
 	"utils.h"
 
 1459837662 /home/ferec/workspace/xbee/XbeeFrameDataSample.h
@@ -302,7 +306,7 @@
 	"XbeeFrame.h"
 	"XbeeAddress.h"
 
-1459837665 source:/home/ferec/workspace/xbee/XbeeFrameRemoteCommandResponse.cpp
+1470701146 source:/home/ferec/workspace/xbee/XbeeFrameRemoteCommandResponse.cpp
 	"XbeeFrameRemoteCommandResponse.h"
 	<iostream>
 	<sstream>
@@ -316,7 +320,7 @@
 	<iostream>
 	<stdexcept>
 
-1470692435 source:/home/ferec/workspace/xbee/XbeeLocal.cpp
+1470701861 source:/home/ferec/workspace/xbee/XbeeLocal.cpp
 	"XbeeLocal.h"
 	"XbeeRemote.h"
 	"XbeeFrameCommand.h"
@@ -326,7 +330,7 @@
 	<stdexcept>
 	<iostream>
 	<sstream>
-	<thread>
 	<string.h>
 	<stdio.h>
+	<unistd.h>
 

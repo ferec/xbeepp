@@ -26,11 +26,17 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    cout << "initialized" << endl;
+
     xbee.configurePortFunction(Xbee::xbee_port::D0, Xbee::xbee_port_function::DigitalInput);
     xbee.configurePortFunction(Xbee::xbee_port::D1, Xbee::xbee_port_function::DigitalOutputLow);
     xbee.configurePortFunction(Xbee::xbee_port::D2, Xbee::xbee_port_function::DigitalOutputHigh);
 
+    cout << "configured" << endl;
+
     sleep(5);
+
+    cout << "slept" << endl;
 
 //    xbee.discover();
 
@@ -51,8 +57,10 @@ int main(int argc, char *argv[])
         cout << Xbee::getTime() << ":remote AT cmd sent" << endl;
     }
 
-    sleep(1);
+    sleep(2);
 
     cout << "End main" << endl;
+
+    xbee.uninit();
     return 0;
 }

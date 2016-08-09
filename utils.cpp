@@ -3,10 +3,18 @@
 #include <string.h>
 #include <stdio.h>
 
+#include <iostream>
+#include <stdlib.h>
+
 using namespace std;
 
 void hex_dump( const void *address, uint16_t length)
 {
+    cout << "hexdump:" << length << " bytes at 0x" << hex << address << endl;
+
+    if (length == 0xffff)
+        abort();
+
 	char linebuf[80];
 	char *p, *q, *hex, *chars;
    unsigned char ch;

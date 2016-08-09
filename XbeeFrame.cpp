@@ -9,6 +9,7 @@
 #include <iostream>
 
 #include <string.h>
+#include <stdlib.h>
 
 #include "utils.h"
 
@@ -16,6 +17,9 @@ using namespace std;
 
 XbeeFrame::XbeeFrame(XbeeFrame::frame *frmData)
 {
+    if (frmData == NULL)
+        abort();
+
     memcpy(&frm, frmData, getFullSize(*frmData));
 
     frm.init = XBEE_PACKET_START;
@@ -93,8 +97,8 @@ void XbeeFrame::print()
     cout << "Calculated CRC:" << hex << (int)calculateCrc() << endl;
     cout << "CRC:" << hex << (int)getCrc() << endl;
 
-//    cout << "print frm:" << &frm << endl;
-//    hex_dump(&frm, getFullSize()+8);
+    cout << "print frm:" << &frm << endl;
+    hex_dump(&frm, getFullSize());
 }
 
 uint8_t XbeeFrame::checksum ( const void *bytes, uint_fast8_t length,
@@ -126,6 +130,9 @@ uint8_t XbeeFrame::calculateCrc()
 
 void XbeeFrame::validate()
 {
+    if (getFullSize() > XBEE_FRAME_MAXSIZE)
+        abort();
+
     uint8_t crc1 = getCrc();
     uint8_t crcc = calculateCrc();
     if (crc1 != crcc)
@@ -137,6 +144,9 @@ void XbeeFrame::validate()
 
 XbeeFrame* XbeeFrame::createFrame(XbeeFrame::frame *frmData)
 {
+    if (frmData == NULL)
+        abort();
+
 //    XbeeFrame *newFrm = NULL;
     switch(frmData->type)
     {

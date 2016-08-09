@@ -9,6 +9,7 @@
 #include "XbeeRemote.h"
 
 #include <vector>
+#include <thread>
 
 #define XBEE_CMD_AP "AP"
 #define XBEE_CMD_AO "AO"
@@ -32,6 +33,7 @@ class XbeeLocal:public Xbee
         XbeeAddress& getAddress();
 
         void initialize();
+        void uninit();
 
         virtual ~XbeeLocal();
 
@@ -52,8 +54,7 @@ class XbeeLocal:public Xbee
 
     protected:
         static void* reader(void *arg);
-
-        void readerM();
+//        void readerM();
 
         void readFrameData(XbeeFrame::frame *buffer);
 
@@ -81,6 +82,9 @@ class XbeeLocal:public Xbee
 
         std::vector<XbeeRemote*> discovered;
 
+//        std::thread bgThread;
+
+        std::mutex mSerial;
 //        std::map<uint64_t,XbeeRemote*> listeners;
 };
 

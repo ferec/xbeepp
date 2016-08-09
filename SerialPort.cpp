@@ -172,20 +172,27 @@ void SerialPort::readData(uint8_t *buffer, size_t len)
 
     size_t have=0;
     int l;
+
+    lock_guard<mutex> blWr(m_write);
+
     do
     {
         l = read(fd, buffer+have, len-have);
         //cout << "l=" << l << endl;
-//        cout << "read:";
-//        hex_dump(buffer+have, l);
+
 
         if (l>0)
+        {
+            cout << "read:" << l;
+            hex_dump(buffer+have, l);
             have+=l;
+        }
+
     } while((l == -1 && errno == EAGAIN) || have < len);
 
     if (l == -1)
     {
- //       cerr << "read error" << endl;
+        cerr << "read error" << endl;
         throw runtime_error(strerror(errno));
     }
 }

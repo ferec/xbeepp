@@ -29,6 +29,7 @@
 					<Add option="-g" />
 				</Compiler>
 				<Linker>
+					<Add option="-Wl,--no-as-needed" />
 					<Add library="pthread" />
 				</Linker>
 			</Target>
