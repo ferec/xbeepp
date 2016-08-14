@@ -1,8 +1,9 @@
 #include "XbeeFrameDiscovery.h"
 
 #include "XbeeLocal.h"
+#include "XbeeLogger.h"
 
-#include <iostream>
+//#include <iostream>
 #include <sstream>
 #include <stdexcept>
 
@@ -40,20 +41,28 @@ uint16_t XbeeFrameDiscovery::getAddrParent()
     return disc2->addr_parent[0]*0x100+disc2->addr_parent[1];
 }
 
-void XbeeFrameDiscovery::print(bool debug)
+void XbeeFrameDiscovery::print()
 {
-    XbeeFrameCommandResponse::print(debug);
+    XbeeFrameCommandResponse::print();
 
-    if (debug)
-    {
-        cout << "Network ID:" << getNetworkID() << endl;
-        cout << "Parent:" << hex << getAddrParent() << endl;
-        cout << "Device type:" << getDeviceTypeName() << endl;
-        cout << "Device status:" << (int)getStatus() << endl;
-        cout << "Profile ID:" << getProfileId() << endl;
-        cout << "Manufacturer:" << getManufacturer() << endl;
-    } else
-        cout << "Discovered " << getAddress().toString() << endl;
+    stringstream ss;
+
+    ss << "Network ID:" << getNetworkID() << endl;
+    ss << "Parent:" << hex << getAddrParent() << endl;
+    ss << "Device type:" << getDeviceTypeName() << endl;
+    ss << "Device status:" << (int)getStatus() << endl;
+    ss << "Profile ID:" << getProfileId() << endl;
+    ss << "Manufacturer:" << getManufacturer() << endl;
+
+
+    XbeeLogger &log = XbeeLogger::GetInstance();
+
+    log.doLog(ss.str(), XbeeLogger::Severity::Debug, "XbeeFrameDiscovery");
+
+    ss.clear();
+    ss.str("Discovered ");
+    ss << getAddress().toString() << endl;
+    log.doLog(ss.str(), XbeeLogger::Severity::Debug, "XbeeFrameDiscovery");
 
 //    XbeeLocal::hex_dump(disc1, getRawDataSize());
 }

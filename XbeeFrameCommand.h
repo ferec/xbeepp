@@ -8,6 +8,12 @@
 class XbeeFrameCommand : public XbeeFrame
 {
     public:
+
+        enum class returnType:uint8_t
+        {
+            NONE=0, BYTE=1, SHORT=2, WORD=4, LONG=8, RAW=9
+        };
+
         XbeeFrameCommand(std::string cmd, uint8_t frmId);
         XbeeFrameCommand(std::string cmd, uint8_t param, uint8_t frmId);
         XbeeFrameCommand(XbeeFrame::frame *frmData);
@@ -26,7 +32,7 @@ class XbeeFrameCommand : public XbeeFrame
             uint8_t crc_with_param;
         };
 
-        virtual void print(bool debug);
+        virtual void print();
         uint8_t getFrameId() { return frm_data->frame_id; }
 //        uint8_t getCrc();
     protected:

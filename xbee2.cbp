@@ -14,9 +14,10 @@
 				<Compiler>
 					<Add option="-std=c++11" />
 					<Add option="-g" />
+					<Add directory="../xbee" />
 				</Compiler>
 				<Linker>
-					<Add library="pthread" />
+					<Add directory="../libs/gcc" />
 				</Linker>
 			</Target>
 			<Target title="arm">
@@ -26,12 +27,16 @@
 				<Option compiler="raspberry2" />
 				<Compiler>
 					<Add option="-std=c++11" />
-					<Add option="-g" />
+					<Add directory="../xbee" />
 				</Compiler>
 				<Linker>
 					<Add option="-Wl,--no-as-needed" />
-					<Add library="pthread" />
+					<Add library="rt" />
+					<Add directory="../libs/arm2" />
 				</Linker>
+				<ExtraCommands>
+					<Add after="scp bin/arm/xbee2 rasp:/tmp/" />
+				</ExtraCommands>
 			</Target>
 			<Target title="lib intel">
 				<Option output="../libs/gcc/xbee2" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="1" extension_auto="1" />
@@ -41,9 +46,10 @@
 				<Compiler>
 					<Add option="-std=c++11" />
 					<Add option="-g" />
+					<Add directory="../xbee" />
 				</Compiler>
 				<Linker>
-					<Add library="pthread" />
+					<Add directory="../libs/gcc" />
 				</Linker>
 			</Target>
 			<Target title="lib arm">
@@ -52,11 +58,12 @@
 				<Option type="3" />
 				<Option compiler="raspberry2" />
 				<Compiler>
-					<Add option="-std=c++11" />
+					<Add option="-std=c++0x" />
 					<Add option="-g" />
+					<Add directory="../xbee" />
 				</Compiler>
 				<Linker>
-					<Add library="pthread" />
+					<Add directory="../libs/arm2" />
 				</Linker>
 			</Target>
 		</Build>
@@ -64,12 +71,17 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Linker>
+			<Add library="pthread" />
+			<Add library="andamCommon" />
+		</Linker>
 		<Unit filename="SerialPort.cpp" />
 		<Unit filename="SerialPort.h" />
 		<Unit filename="Xbee.cpp" />
 		<Unit filename="Xbee.h" />
 		<Unit filename="XbeeAddress.cpp" />
 		<Unit filename="XbeeAddress.h" />
+		<Unit filename="XbeeDiscoveryListener.h" />
 		<Unit filename="XbeeFrame.cpp" />
 		<Unit filename="XbeeFrame.h" />
 		<Unit filename="XbeeFrameCommand.cpp" />
@@ -86,6 +98,8 @@
 		<Unit filename="XbeeFrameRemoteCommandResponse.h" />
 		<Unit filename="XbeeLocal.cpp" />
 		<Unit filename="XbeeLocal.h" />
+		<Unit filename="XbeeLogger.cpp" />
+		<Unit filename="XbeeLogger.h" />
 		<Unit filename="XbeeRemote.cpp" />
 		<Unit filename="XbeeRemote.h" />
 		<Unit filename="test.cpp">

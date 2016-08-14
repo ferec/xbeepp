@@ -1,17 +1,16 @@
 #include <inttypes.h>
-#include <string>
 #include <string.h>
 #include <stdio.h>
 
 #include <iostream>
 #include <stdlib.h>
 
+#include "utils.h"
+
 using namespace std;
 
 void hex_dump( const void *address, uint16_t length)
 {
-//    cout << "hexdump:" << length << " bytes at 0x" << hex << address << endl;
-
     if (length == 0xffff)
         abort();
 

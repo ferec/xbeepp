@@ -14,11 +14,6 @@ class XbeeFrameCommandResponse : public XbeeFrame
 
         virtual ~XbeeFrameCommandResponse();
 
-        enum class returnType:uint8_t
-        {
-            NONE=0, BYTE=1, SHORT=2, WORD=4, LONG=8, RAW=9
-        };
-
         struct frame_response
         {
             uint8_t frame_id;
@@ -27,7 +22,7 @@ class XbeeFrameCommandResponse : public XbeeFrame
             uint8_t value[0];
         };
 
-        virtual void print(bool debug);
+        virtual void print();
 
         Xbee::xbee_payload_at_cmd_status getStatus();
         std::string getStatusName();
@@ -41,7 +36,7 @@ class XbeeFrameCommandResponse : public XbeeFrame
         uint64_t getLongValue();
 
         size_t getReturnDataLength();
-        void getRawValue(uint8_t *buffer, size_t buflen);
+        void getRawValue(uint8_t *buffer, size_t maxlen);
 
         bool hasByteData();
         bool hasShortData();

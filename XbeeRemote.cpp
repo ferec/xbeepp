@@ -1,8 +1,10 @@
 #include "XbeeRemote.h"
 #include "XbeeLocal.h"
 #include "XbeeFrameRemoteCommand.h"
+#include "XbeeLogger.h"
+#include "XbeeCommandResponse.h"
 
-#include <iostream>
+#include <sstream>
 #include <stdexcept>
 
 using namespace std;
@@ -17,47 +19,49 @@ XbeeRemote::~XbeeRemote()
 {
 }
 
-void XbeeRemote::sendCommandWithParameter(std::string cmd, uint8_t param)
+void XbeeRemote::sendCommand(std::string cmd, uint8_t param)
 {
     response_handler h = {};
-    sendCommandWithParameterAsync(cmd, param, h);
+    sendCommand(cmd, param, h);
 }
 
-void XbeeRemote::sendCommandWithParameterAsync(std::string cmd, uint8_t param, response_handler &hnd)
+void XbeeRemote::sendCommand(std::string cmd, response_handler &hnd)
 {
-    uint8_t frmId = nextFrameId();
-    XbeeFrameRemoteCommand req(cmd, param, frmId, getAddress());
-
-    if (hnd.cb != NULL)
-        handlers[frmId] = hnd;
+    uint8_t frmId = localXbee.nextFrameId();
+    XbeeFrameRemoteCommand req(cmd, frmId, getAddress());
 
     localXbee.writeFrame(req);
+
+    if (hnd.cb != NULL)
+        setHandler(frmId, hnd);
 }
 
-void XbeeRemote::responseReceived(XbeeFrameRemoteCommandResponse *frm)
+void XbeeRemote::sendCommand(std::string cmd, uint8_t param, response_handler &hnd)
 {
+    uint8_t frmId = localXbee.nextFrameId();
+    XbeeFrameRemoteCommand req(cmd, param, frmId, getAddress());
 
-    uint8_t frmId = frm->getFrameId();
-    cout << getTime() << ":Response received from " << getAddress().toString() << " ID " << (int)frmId << endl;
+    localXbee.writeFrame(req);
 
-    if (handlers.count(frmId) != 0)
-    {
-        response_handler &hnd = handlers[frmId];
-
-        hnd.cb(hnd.port, hnd.fnc, frm->getStatus());
-
-        handlers.erase(frmId);
-    }
+    if (hnd.cb != NULL)
+        setHandler(frmId, hnd);
 }
 
-void XbeeRemote::portConfigured(xbee_port port, xbee_port_function fnc, xbee_payload_at_cmd_status result)
+//void XbeeRemote::portConfigured(xbee_port port, XbeeCommandResponse &resp)
+void XbeeRemote::portConfigured(Xbee *xbee, XbeeCommandResponse &resp)
 {
-    cout << "portConfigured " << Xbee::getPortName(port) << " as " << Xbee::getPortFunctionName(fnc) << " with result:" << Xbee::getStatusName(result) << endl;
+//    cout << "portConfigured " << Xbee::getPortName(port) << " as " << Xbee::getPortFunctionName(fnc) << " with result:" << Xbee::getStatusName(result) << endl;
+    XbeeLogger::GetInstance().doLog("portConfigured " + Xbee::getPortName(resp.getPort()) + " with result:" + Xbee::getStatusName(resp.getStatus()), XbeeLogger::Severity::Info, "XbeeRemote");
 }
 
-void XbeeRemote::configurePortFunction(xbee_port port, xbee_port_function fnc)
+/*void XbeeRemote::configurePortFunction(xbee_port port, xbee_port_function fnc)
 {
-    struct response_handler hnd = { portConfigured, port, fnc };
-    sendCommandWithParameterAsync(getCommandForPort(port), static_cast<uint8_t>(fnc), hnd);
-}
+    struct response_handler hnd = { portConfigured //, port, fnc
+        };
+    sendCommand(getCommandForPort(port), static_cast<uint8_t>(fnc), hnd);
+}*/
 
+/*void XbeeRemote::initialize()
+{
+    XbeeLogger::GetInstance().doLog("initializing " + getAddress().toString(), XbeeLogger::Severity::Info, "XbeeRemote");
+}*/

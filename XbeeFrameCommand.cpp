@@ -1,6 +1,8 @@
 #include "XbeeFrameCommand.h"
+#include "XbeeLogger.h"
 
-#include <iostream>
+//#include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -30,11 +32,13 @@ void XbeeFrameCommand::setData(string cmd, uint8_t frmId)
     frm_data->cmd[1] = cmd[1];
 }
 
-void XbeeFrameCommand::print(bool debug)
+void XbeeFrameCommand::print()
 {
-    XbeeFrame::print(debug);
+    XbeeFrame::print();
 
-    cout << "Command " << frm_data->cmd[0] << frm_data->cmd[1] << " (Frame ID:" << hex << (int)frm_data->frame_id << ")" << endl;
+    stringstream ss;
+    ss << "Command " << frm_data->cmd[0] << frm_data->cmd[1] << " (Frame ID:" << hex << (int)frm_data->frame_id << ")" << endl;
+    XbeeLogger::GetInstance().doLog(ss.str(), XbeeLogger::Severity::Info, "XbeeFrameCommand");
 }
 
 /*

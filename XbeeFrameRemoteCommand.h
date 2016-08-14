@@ -28,7 +28,7 @@ class XbeeFrameRemoteCommand : public XbeeFrame
 
         XbeeAddress getAddress();
 
-        void print(bool debug);
+        void print();
     protected:
     private:
         frame_remote_cmd *frm_data;

@@ -1,4 +1,5 @@
 #include "XbeeFrame.h"
+#include "XbeeLogger.h"
 
 #include "XbeeFrameCommandResponse.h"
 #include "XbeeFrameRemoteCommandResponse.h"
@@ -6,7 +7,8 @@
 
 #include <stdexcept>
 #include <sstream>
-#include <iostream>
+//#include <iostream>
+#include <string>
 
 #include <string.h>
 #include <stdlib.h>
@@ -84,20 +86,35 @@ string XbeeFrame::getTypeName()
         case XbeeApiType::DATA_SAMPLE_RX:
             return "Data sample IO";
         default:
-            ss << "Unknown:" << (int)frm.type << endl;
+            ss << "Unknown:" << (int)frm.type;
             return ss.str();
     }
 }
 
-void XbeeFrame::print(bool debug)
+void XbeeFrame::print()
 {
-    if (debug)
+    XbeeLogger &log = XbeeLogger::GetInstance();
+
+    stringstream ss;
+    ss << "Frame:" << getTypeName() << endl;
+    ss << "Data size:" << getDataSize() << endl;
+    ss << "Full size:" << getFullSize() << endl;
+
+    log.doLog(ss.str(), XbeeLogger::Severity::Debug, "XbeeFrame");
+
+    ss.clear();
+    ss.str("Calculated CRC:");
+    ss << hex << (int)calculateCrc() << endl;
+    ss << "CRC:" << hex << (int)getCrc() << endl;
+    log.doLog(ss.str(), XbeeLogger::Severity::Debug, "XbeeFrame");
+
+//    if (debug)
     {
-        cout << "Frame:" << getTypeName() << endl;
-        cout << "Data size:" << getDataSize() << endl;
-        cout << "Full size:" << getFullSize() << endl;
-        cout << "Calculated CRC:" << hex << (int)calculateCrc() << endl;
-        cout << "CRC:" << hex << (int)getCrc() << endl;
+ //       cout << "Frame:" << getTypeName() << endl;
+ //       cout << "Data size:" << getDataSize() << endl;
+ //       cout << "Full size:" << getFullSize() << endl;
+ //       cout << "Calculated CRC:" << hex << (int)calculateCrc() << endl;
+//        cout << "CRC:" << hex << (int)getCrc() << endl;
     }
 
 //    cout << "print frm:" << &frm << endl;
@@ -140,7 +157,9 @@ void XbeeFrame::validate()
     uint8_t crcc = calculateCrc();
     if (crc1 != crcc)
     {
-        cerr << "crc1:0x" << hex << (int)crc1 << " crc2:" << (int)crcc << endl;
+        stringstream ss;
+        ss << "crc1:0x" << hex << (int)crc1 << " crc2:" << (int)crcc << endl;
+        XbeeLogger::GetInstance().doLog(ss.str(), XbeeLogger::Severity::Info, "XbeeFrame");
         throw runtime_error("Frame not valid by CRC");
     }
 }

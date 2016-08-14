@@ -2,8 +2,9 @@
 #include "XbeeFrameDiscovery.h"
 
 #include "XbeeLocal.h"
+#include "XbeeLogger.h"
 
-#include <iostream>
+//#include <iostream>
 #include <sstream>
 #include <stdexcept>
 
@@ -82,35 +83,41 @@ size_t XbeeFrameCommandResponse::getReturnDataLength()
 //    return getDataSize()-5;
 }
 
-void XbeeFrameCommandResponse::getRawValue(uint8_t *buffer, size_t buflen)
+void XbeeFrameCommandResponse::getRawValue(uint8_t *buffer, size_t maxlen)
 {
     size_t len = getReturnDataLength();
-    if (len > buflen)
+    if (len > maxlen)
         throw runtime_error("getRawValue:buffer too small");
 
     memcpy(buffer, frm_data->value, len);
 }
 
-void XbeeFrameCommandResponse::print(bool debug)
+void XbeeFrameCommandResponse::print()
 {
-    XbeeFrame::print(debug);
+    XbeeFrame::print();
 
-    if (debug)
-    {
-        cout << "Frame ID:" << hex << (int)frm_data->frame_id << endl;
-        cout << "Command:" << frm_data->cmd[0] << frm_data->cmd[1] << endl;
-        cout << "Status:" << getStatusName() << endl;
-        if (hasByteData())
-            cout << "Value(byte):" << (unsigned int)getByteValue() << endl;
-        if (hasShortData())
-            cout << "Value(short):" << (unsigned int)getShortValue() << endl;
-        if (hasWordData())
-            cout << "Value(32bit):" << getWordValue() << endl;
-        if (hasLongData())
-            cout << "Value(64bit):" << getLongValue() << endl;
-    }
-    else
-        cout << "Response to " << frm_data->cmd[0] << frm_data->cmd[1] << " with result " << getStatusName() << " (Frame ID:" << hex << (int)frm_data->frame_id << ")" << endl;
+    XbeeLogger &log = XbeeLogger::GetInstance();
+
+    stringstream ss;
+    ss << "Response to " << frm_data->cmd[0] << frm_data->cmd[1] << " with result " << getStatusName() << " (Frame ID:" << hex << (int)frm_data->frame_id << ")" << endl;
+    log.doLog(ss.str(), XbeeLogger::Severity::Info, "XbeeFrameCommandResponse");
+
+    ss.clear();
+    ss.str(string());
+
+    ss << "Frame ID:" << hex << (int)frm_data->frame_id << endl;
+    ss << "Command:" << frm_data->cmd[0] << frm_data->cmd[1] << endl;
+    ss << "Status:" << getStatusName() << endl;
+
+    if (hasByteData())
+        ss << "Value(byte):" << (unsigned int)getByteValue() << endl;
+    if (hasShortData())
+        ss << "Value(short):" << (unsigned int)getShortValue() << endl;
+    if (hasWordData())
+        ss << "Value(32bit):" << getWordValue() << endl;
+    if (hasLongData())
+        ss << "Value(64bit):" << getLongValue() << endl;
+    log.doLog(ss.str(), XbeeLogger::Severity::Debug, "XbeeFrameCommandResponse");
 
 /*    if (hasRawData())
     {
@@ -119,6 +126,11 @@ void XbeeFrameCommandResponse::print(bool debug)
         getRawValue(buffer, 100);
         XbeeLocal::hex_dump(buffer, getRawDataSize());
     }*/
+}
+
+Xbee::xbee_payload_at_cmd_status XbeeFrameCommandResponse::getStatus()
+{
+    return frm_data->status;
 }
 
 string XbeeFrameCommandResponse::getStatusName()

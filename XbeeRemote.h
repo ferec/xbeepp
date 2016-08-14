@@ -16,21 +16,23 @@ class XbeeRemote : public Xbee
         XbeeRemote(XbeeAddress addr, XbeeLocal &local);
         virtual ~XbeeRemote();
 
-        void responseReceived(XbeeFrameRemoteCommandResponse *frm);
+//        void initialize();
+//        virtual void responseReceived(XbeeFrameRemoteCommandResponse *frm);
 
-        virtual void configurePortFunction(xbee_port port, xbee_port_function fnc);
+//        virtual void configurePortFunction(xbee_port port, xbee_port_function fnc);
 
     protected:
-        void sendCommandWithParameter(std::string cmd, uint8_t param);
-        void sendCommandWithParameterAsync(std::string cmd, uint8_t param, response_handler &hnd);
+        void sendCommand(std::string cmd, uint8_t param);
+        void sendCommand(std::string cmd, response_handler &hnd);
+        void sendCommand(std::string cmd, uint8_t param, response_handler &hnd);
 
+//        virtual uint64_t sendCommandWithResponseSync(std::string cmd, XbeeFrameCommand::returnType rt);
 
-        static void portConfigured(xbee_port port, xbee_port_function fnc, xbee_payload_at_cmd_status result);
+//        static void portConfigured(xbee_port port, XbeeCommandResponse &resp);
+        static void portConfigured(Xbee *xbee, XbeeCommandResponse &resp);
 
     private:
         XbeeLocal &localXbee;
-
-        std::map<uint8_t,response_handler> handlers;
 };
 
 #endif // XBEEREMOTE_H

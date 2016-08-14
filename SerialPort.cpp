@@ -1,7 +1,9 @@
 #include "SerialPort.h"
 #include "utils.h"
+#include "XbeeLogger.h"
 
-#include <iostream>
+//#include <iostream>
+#include <sstream>
 #include <stdexcept>
 
 #include <fcntl.h>
@@ -123,8 +125,6 @@ void SerialPort::initialize()
     else
         options.c_cflag &= ~CRTSCTS;
 
-//    cout << "iflags:" << hex << options.c_iflag << endl;
-
 	// Set raw
 	cfmakeraw(&options);
 //    options.c_lflag &= ~(ICANON | ECHO | ISIG);
@@ -141,7 +141,6 @@ void SerialPort::uninitialize()
     if (fd > 0)
     {
         close(fd);
-//        cout << "closing dev" << endl;
     }
 }
 
@@ -150,10 +149,7 @@ void SerialPort::writeData(uint8_t *buffer, size_t len)
     size_t have=0;
     int l;
 
-//    cout << "write:" << len << endl;
-//    hex_dump(buffer, len);
     lock_guard<mutex> blWr(m_write);
-//    lock();
     do
     {
         l = write(fd, buffer+have, len-have);
@@ -161,16 +157,12 @@ void SerialPort::writeData(uint8_t *buffer, size_t len)
             have+=l;
     } while((l == -1 && errno == EAGAIN) || have < len);
 
-//    unlock();
-
     if (l == -1)
         throw runtime_error(strerror(errno));
 }
 
 void SerialPort::readData(uint8_t *buffer, size_t len)
 {
-
-//    cout << "readData:" << len << " buffer:" << (void*)buffer << endl;
 
     size_t have=0;
     int l;
@@ -180,13 +172,12 @@ void SerialPort::readData(uint8_t *buffer, size_t len)
     do
     {
         l = read(fd, buffer+have, len-have);
-        //cout << "l=" << l << endl;
 
+        if (l==0)
+            throw runtime_error("file descriptor closed");
 
         if (l>0)
         {
-//            cout << "read:" << l << endl;
-//            hex_dump(buffer+have, l);
             have+=l;
         }
 
@@ -194,9 +185,11 @@ void SerialPort::readData(uint8_t *buffer, size_t len)
 
     if (l == -1)
     {
-//        cerr << "read error" << endl;
         throw runtime_error(strerror(errno));
     }
+
+    if (have != len)
+        throw runtime_error("unknown error");
 }
 
 uint8_t SerialPort::readByte()
@@ -223,8 +216,6 @@ void SerialPort::wait4Char(char c)
     {
         l = read(fd, &buffer, 1);
 
-//        if (l>0)
-//            cout << "read=" << buffer << endl;
         if (l>0)
             i++;
 
@@ -233,7 +224,11 @@ void SerialPort::wait4Char(char c)
     } while((l == -1 && errno == EAGAIN) || buffer != c);
 
     if (i>1)
-        cout << "read " << (i-1) << " chars before frame start" << endl;
+    {
+        stringstream ss;
+        ss << "read " << (i-1) << " chars before frame start";
+        XbeeLogger::GetInstance().doLog("" + 1, XbeeLogger::Severity::Info, "SerialPort");
+    }
 
     if (l == -1)
         throw runtime_error(strerror(errno));

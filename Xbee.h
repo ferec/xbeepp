@@ -2,11 +2,24 @@
 #define XBEE_H
 
 #include "XbeeAddress.h"
+#include "XbeeFrameCommand.h"
 
 #include <bitset>
+#include <map>
+#include <mutex>
 
 #define XBEE_MAX_PORTS 20
 #define XBEE_ANALOG_PORTS 4
+
+#define XBEE_CMD_AP "AP"
+#define XBEE_CMD_AO "AO"
+#define XBEE_CMD_ID "ID"
+#define XBEE_CMD_VR "VR"
+#define XBEE_CMD_HV "HV"
+#define XBEE_CMD_SH "SH"
+#define XBEE_CMD_SL "SL"
+#define XBEE_CMD_MY "MY"
+#define XBEE_CMD_ND "ND"
 
 #define XBEE_CMD_P0 "P0"
 #define XBEE_CMD_P1 "P1"
@@ -27,6 +40,9 @@
 #define XBEE_CMD_D8 "D8"
 
 #define CMD(ID) XBEE_CMD_ ## ID
+
+class XbeeFrameRemoteCommandResponse;
+class XbeeCommandResponse;
 
 class Xbee
 {
@@ -77,6 +93,12 @@ class Xbee
             OK=0, ERROR=1, INVALID_CMD=2, INVALID_PARAM=3
         };
 
+
+        virtual void initialize();
+        bool isInitialized() { return initialized; }
+
+        void updateState();
+
         static std::string getStatusName(xbee_payload_at_cmd_status stat);
 
         static std::string getPortName(xbee_port port);
@@ -94,20 +116,29 @@ class Xbee
         void setValueID(uint16_t id) { valueID = id; }
 
         void setValueVR(uint16_t vr) { valueVR = vr; }
+        void setValueHV(uint16_t hv) { valueHV = hv; }
 
         xbee_port_function getPortFunction(xbee_port port);
 
-        virtual void configurePortFunction(xbee_port port, xbee_port_function fnc) = 0;
+        virtual void configurePortFunction(xbee_port port, xbee_port_function fnc);
 
         std::string getCommandForPort(xbee_port port);
 
-        virtual void print(bool debug);
+        virtual void print();
 
         bool getDigitalValue(uint8_t index);
         void setDigitalValue(uint8_t index, bool value);
 
         uint16_t getAnalogValue(uint8_t index);
         void setAnalogValue(uint8_t index, uint16_t value);
+
+        virtual std::string getHWVersionString();
+
+        virtual bool isHWProVersion();
+        virtual std::string getHWType();
+
+//        void responseReceived(XbeeFrameRemoteCommandResponse *frm);
+        void callHandler(uint8_t frmId, XbeeCommandResponse resp);
 
     protected:
         void setAddress(uint32_t hi, uint32_t lo, uint16_t net);
@@ -116,34 +147,46 @@ class Xbee
         uint16_t getValueVR() { return valueVR; }
         uint16_t getValueID() { return valueID; }
         uint8_t getValueAO() { return valueAO; }
+        uint16_t getValueHV() { return valueHV; }
 
         virtual void setPortFunction(xbee_port port, xbee_port_function fnc);
 
-        uint8_t nextFrameId() { return ++lastFrame; }
+        void updatePortConfig(std::string cmd, xbee_port p);
 
-        virtual void sendCommandWithParameter(std::string cmd, uint8_t param) = 0;
-
-        typedef void (*response_callback)(xbee_port port, xbee_port_function fnc, xbee_payload_at_cmd_status result);
+        typedef void (*response_callback)(Xbee *xbee, XbeeCommandResponse &resp);
 
         struct response_handler {
             response_callback cb;
-            xbee_port port;
-            xbee_port_function fnc;
+//            xbee_port port;
+//            xbee_port_function fnc;
         };
 
-        virtual void sendCommandWithParameterAsync(std::string cmd, uint8_t param, response_handler &hnd) = 0;
+        void setHandler(uint8_t frmId, response_handler &hnd);
 
+        virtual void sendCommand(std::string cmd, uint8_t param) = 0;
+        virtual void sendCommand(std::string cmd, response_handler &hnd) = 0;
+        virtual void sendCommand(std::string cmd, uint8_t param, response_handler &hnd) = 0;
+        virtual uint64_t sendCommandWithResponseSync(std::string cmd, XbeeFrameCommand::returnType rt);
+        virtual uint64_t sendCommandWithResponseSync(std::string cmd, uint8_t param, XbeeFrameCommand::returnType rt);
+
+        static void setResponse(Xbee *xbee, XbeeCommandResponse &resp);
 
     private:
         XbeeAddress addr;
-        uint8_t lastFrame;
 
         uint8_t valueAP, valueAO;
-        uint16_t valueID, valueVR;
+        uint16_t valueID, valueVR, valueHV;
 
         xbee_port_function portFunction[XBEE_MAX_PORTS];
         std::bitset<XBEE_MAX_PORTS> digitalValue;
         uint16_t analogValue[XBEE_ANALOG_PORTS];
+
+        bool initialized;
+
+        std::mutex mCallback, mResponse;
+        std::map<uint8_t,response_handler> callbackHandlers;
+
+        XbeeCommandResponse *lastResponse;
 };
 
 #endif // XBEE_H

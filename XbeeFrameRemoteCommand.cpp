@@ -1,5 +1,7 @@
 #include "XbeeFrameRemoteCommand.h"
-#include <iostream>
+#include "XbeeLogger.h"
+
+#include <sstream>
 
 using namespace std;
 
@@ -34,9 +36,17 @@ void XbeeFrameRemoteCommand::setData(string cmd, uint8_t frmId)
     frm_data->options = 2; // Apply changes on remote
 }
 
-void XbeeFrameRemoteCommand::print(bool debug)
+void XbeeFrameRemoteCommand::print()
 {
-    XbeeFrame::print(debug);
+    XbeeFrame::print();
 
-    cout << "Remote command " << frm_data->cmd[0] << frm_data->cmd[1] << " to " << getAddress().toString() << " (Frame ID:" << hex << (int)frm_data->frame_id << ")" << endl;
+    stringstream ss;
+    ss << "Remote command " << frm_data->cmd[0] << frm_data->cmd[1] << " to " << getAddress().toString() << " (Frame ID:" << hex << (int)frm_data->frame_id << ")" << endl;
+    XbeeLogger::GetInstance().doLog(ss.str(), XbeeLogger::Severity::Debug, "XbeeFrameRemoteCommand");
+}
+
+XbeeAddress XbeeFrameRemoteCommand::getAddress()
+{
+    uint32_t *ad = reinterpret_cast<uint32_t*>(frm_data->addr);
+    return XbeeAddress(be32toh(*ad), be32toh(*(ad+1)), frm_data->addr_net[0]*0x100+frm_data->addr_net[1]);
 }

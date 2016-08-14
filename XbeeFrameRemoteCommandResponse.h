@@ -30,12 +30,18 @@ class XbeeFrameRemoteCommandResponse : public XbeeFrame
         size_t getReturnDataLength();
         void getRawValue(uint8_t *buffer, size_t buflen);
 
+        bool hasByteData();
+        bool hasShortData();
+        bool hasWordData();
+        bool hasLongData();
+        bool hasRawData();
+
         uint8_t getByteValue();
         uint16_t getShortValue();
         uint32_t getWordValue();
         uint64_t getLongValue();
 
-        virtual void print(bool debug);
+        virtual void print();
 
     protected:
     private:
