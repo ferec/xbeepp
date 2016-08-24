@@ -17,7 +17,7 @@ class XbeeAddress
 
         std::string toString();
 
-        void setAddress(uint32_t hi, uint32_t lo, uint16_t net);
+        void setAddress(const uint32_t hi, const uint32_t lo, const uint16_t net);
         void getAddress64(uint8_t *addr_buf);
         uint64_t getAddressLong() { return addr64; }
         void getAddressNet(uint8_t *addr_buf);

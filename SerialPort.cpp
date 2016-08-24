@@ -1,6 +1,7 @@
 #include "SerialPort.h"
 #include "utils.h"
 #include "XbeeLogger.h"
+#include "XbeeException.h"
 
 //#include <iostream>
 #include <sstream>
@@ -13,7 +14,7 @@
 
 using namespace std;
 
-SerialPort::SerialPort():devOpen(false),baudrate(XBEE_DEFAULT_BAUDRATE),bits(XBEE_DEFAULT_BITS),parity(XBEE_DEFAULT_PARITY),parityOdd(false),
+SerialPort::SerialPort():baudrate(XBEE_DEFAULT_BAUDRATE),bits(XBEE_DEFAULT_BITS),parity(XBEE_DEFAULT_PARITY),parityOdd(false),
     dblStop(XBEE_DEFAULT_STOP_BITS), flowCtrl(XBEE_DEFAULT_FLOWCONTROL),timeout(XBEE_DEFAULT_TIMEOUT),fd(0)
 {
 }
@@ -146,6 +147,10 @@ void SerialPort::uninitialize()
 
 void SerialPort::writeData(uint8_t *buffer, size_t len)
 {
+
+    if (!isOpen())
+        throw XbeeException("Serial port is not open");
+
     size_t have=0;
     int l;
 
@@ -163,6 +168,9 @@ void SerialPort::writeData(uint8_t *buffer, size_t len)
 
 void SerialPort::readData(uint8_t *buffer, size_t len)
 {
+
+    if (!isOpen())
+        throw XbeeException("Serial port is not open");
 
     size_t have=0;
     int l;
@@ -194,6 +202,9 @@ void SerialPort::readData(uint8_t *buffer, size_t len)
 
 uint8_t SerialPort::readByte()
 {
+    if (!isOpen())
+        throw XbeeException("Serial port is not open");
+
     uint8_t buffer;
     int l;
     do
@@ -209,6 +220,9 @@ uint8_t SerialPort::readByte()
 
 void SerialPort::wait4Char(char c)
 {
+    if (!isOpen())
+        throw XbeeException("Serial port is not open");
+
     uint8_t buffer;
     int i=0;
     int l;

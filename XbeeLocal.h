@@ -2,17 +2,14 @@
 #define XBEE_LOCAL_H
 
 #include "SerialPort.h"
-#include "XbeeFrame.h"
-#include "XbeeFrameCommandResponse.h"
 #include "XbeeFrameDiscovery.h"
-#include "Xbee.h"
-#include "XbeeRemote.h"
 #include "XbeeDiscoveryListener.h"
 
 #include <vector>
 #include <thread>
 #include <mutex>
 
+#define BUFLEN 64
 
 class XbeeLocal:public Xbee
 {
@@ -40,8 +37,6 @@ class XbeeLocal:public Xbee
         void addDiscoveryListener(XbeeDiscoveryListener *l);
         void removeDiscoveryListener(XbeeDiscoveryListener *l);
 
-//        virtual void configurePortFunction(xbee_port port, xbee_port_function fnc);
-
         void discover();
 
 
@@ -53,22 +48,18 @@ class XbeeLocal:public Xbee
 
         void writeFrame(XbeeFrame &frame);
 
-//        void updateState();
         void printFrame(XbeeFrame &frm);
         void processFrame(XbeeFrame *frm);
 
 
-//        virtual void sendCommandWithParameterAsync(std::string cmd, uint8_t param, response_handler &hnd);
         virtual void sendCommand(std::string cmd);
         virtual void sendCommand(std::string cmd, response_handler &hnd);
 
         virtual void sendCommand(std::string cmd, uint8_t param);
         virtual void sendCommand(std::string cmd, uint8_t param, response_handler &hnd);
 
-        virtual uint64_t sendCommandWithResponseSync(std::string cmd, XbeeFrameCommand::returnType rt);
-
-//        void sendPreinitCommand(std::string cmd);
-//        void sendPreinitCommandWithParameter(std::string cmd, uint8_t param);
+        virtual uint64_t sendCommandWithResponseSync(XbeeCommand &cmd, XbeeCommand::returnType rt);
+        virtual void sendCommandWithResponseSync(XbeeCommand &cmd, uint8_t buf[], size_t buflen);
 
         uint8_t nextFrameId() { return ++lastFrame; }
 
@@ -78,18 +69,21 @@ class XbeeLocal:public Xbee
         uint8_t lastFrame;
 
         pthread_t thReader;
-        bool stop;
+        bool stop, doRemoteInit;
 
         void readAndProcessFrames();
 
         std::vector<XbeeRemote*> discovered;
         std::vector<XbeeDiscoveryListener*> discoveryListeners;
 
-//        std::thread bgThread;
-
         std::mutex mSerial;
-//        std::map<uint64_t,XbeeRemote*> listeners;
-        uint64_t sendPreinitCommandWithResponseSync(std::string cmd, XbeeFrameCommand::returnType);
+
+        void runPreinitCommand(std::string cmd, XbeeFrameCommandResponse &resp);
+        uint64_t sendPreinitCommandWithResponseSync(std::string cmd, XbeeCommand::returnType);
+        void sendPreinitCommandWithResponseSync(std::string cmd, uint8_t buf[], size_t buflen);
+        void readLocalResponseFrameData(XbeeFrameCommandResponse &resp);
+
+        virtual void queryValue(std::string value);
 };
 
 #endif // XBEE_LOCAL_H

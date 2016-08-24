@@ -2,10 +2,10 @@
 #define XBEEFRAMEREMOTECOMMANDRESPONSE_H
 
 #include "XbeeFrame.h"
-#include "Xbee.h"
+#include "XbeeCommandResponse.h"
+#include "XbeeAddress.h"
 
-
-class XbeeFrameRemoteCommandResponse : public XbeeFrame
+class XbeeFrameRemoteCommandResponse : public XbeeFrame, public XbeeCommandResponse
 {
     public:
         XbeeFrameRemoteCommandResponse(XbeeFrame::frame *frmData);
@@ -16,36 +16,36 @@ class XbeeFrameRemoteCommandResponse : public XbeeFrame
             uint8_t addr[8];
             uint8_t addr_net[2];
             char cmd[2];
-            Xbee::xbee_payload_at_cmd_status status;
+            XbeeCommandResponse::status status;
             uint8_t value[4];
             uint8_t crc;
         };
 
         XbeeAddress getAddress();
 
-        Xbee::xbee_payload_at_cmd_status getStatus();
-        std::string getStatusName();
+//        virtual const bool isLocal() { return false; }
+        virtual const XbeeCommandResponse::status getStatus();
+
+//        virtual const uint64_t getValue();
+        virtual const XbeeCommand::returnType getReturnType();
+        const std::string getCommandString();
+
         uint8_t getFrameId() { return frm_data->frame_id; }
-        std::string getCommand();
-        size_t getReturnDataLength();
-        void getRawValue(uint8_t *buffer, size_t buflen);
+        virtual size_t getResponseDataSize();
+        size_t getRawValue(uint8_t *buffer, size_t buflen);
 
-        bool hasByteData();
-        bool hasShortData();
-        bool hasWordData();
-        bool hasLongData();
-        bool hasRawData();
+        virtual void print();
 
+    protected:
         uint8_t getByteValue();
         uint16_t getShortValue();
         uint32_t getWordValue();
         uint64_t getLongValue();
 
-        virtual void print();
+        bool hasRawData();
 
-    protected:
     private:
-        frame_remote_resp *frm_data;
+        const frame_remote_resp *frm_data;
 };
 
 #endif // XBEEFRAMEREMOTECOMMANDRESPONSE_H

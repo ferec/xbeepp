@@ -36,14 +36,14 @@ class XbeeFrameDiscovery : public XbeeFrameCommandResponse
         uint16_t getAddrParent();
         deviceType getDeviceType();
         std::string getDeviceTypeName();
-        uint8_t getStatus();
+        virtual const XbeeCommandResponse::status getStatus();
         uint16_t getProfileId();
         uint16_t getManufacturer();
 
     protected:
     private:
-        discovery_data_1 *disc1;
-        discovery_data_2 *disc2;
+        const discovery_data_1 *disc1;
+        const discovery_data_2 *disc2;
 };
 
 #endif // XBEEFRAMEDISCOVERY_H

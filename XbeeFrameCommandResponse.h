@@ -2,10 +2,9 @@
 #define XBEEFRAMECOMMANDRESPONSE_H
 
 #include "XbeeFrame.h"
-#include "Xbee.h"
+#include "XbeeCommandResponse.h"
 
-
-class XbeeFrameCommandResponse : public XbeeFrame
+class XbeeFrameCommandResponse : public XbeeFrame, public XbeeCommandResponse
 {
     public:
         XbeeFrameCommandResponse();
@@ -18,36 +17,36 @@ class XbeeFrameCommandResponse : public XbeeFrame
         {
             uint8_t frame_id;
             char cmd[2];
-            Xbee::xbee_payload_at_cmd_status status;
+            XbeeCommandResponse::status status;
             uint8_t value[0];
         };
 
         virtual void print();
 
-        Xbee::xbee_payload_at_cmd_status getStatus();
-        std::string getStatusName();
+//        virtual const bool isLocal() { return true; }
+
+//        virtual const uint64_t getValue();
+        virtual const XbeeCommand::returnType getReturnType();
+        virtual const XbeeCommandResponse::status getStatus();
+        virtual const std::string getCommandString();
+
         uint8_t getFrameId() { return frm_data->frame_id; }
 
-        std::string getCommand();
 
-        uint8_t getByteValue();
-        uint16_t getShortValue();
-        uint32_t getWordValue();
-        uint64_t getLongValue();
+        size_t getResponseDataSize();
+        size_t getRawValue(uint8_t *buffer, size_t maxlen);
 
-        size_t getReturnDataLength();
-        void getRawValue(uint8_t *buffer, size_t maxlen);
-
-        bool hasByteData();
-        bool hasShortData();
-        bool hasWordData();
-        bool hasLongData();
         bool hasRawData();
 
 //        uint8_t getCrc();
     protected:
         XbeeFrameCommandResponse(XbeeFrame::frame *frmData);
         frame_response *frm_data;
+
+        uint8_t getByteValue();
+        uint16_t getShortValue();
+        uint32_t getWordValue();
+        uint64_t getLongValue();
 
     private:
 };

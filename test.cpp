@@ -6,6 +6,8 @@
 #include "XbeeLocal.h"
 #include "XbeeRemote.h"
 #include "XbeeLogger.h"
+#include "utils.h"
+#include "XbeeException.h"
 
 using namespace std;
 
@@ -49,6 +51,17 @@ int main(int argc, char *argv[])
     TestDiscover discover;
     xbee.addDiscoveryListener(&discover);
 
+    typedef XbeePort::pinID pt;
+    typedef XbeePort::pinFunction pf;
+
+    try
+    {
+        xbee.configurePortFunction(pt::D0, pf::DigitalInput);
+        cout << "TEST - this should not be visible, Xbee not initialized and exception should be thrown" << endl;
+    } catch (XbeeException &ex) {
+        cout << "tested - exception is thrown when tried to call a function on noninitialized Xbee" << endl;
+    }
+
     try
     {
         xbee.initialize();
@@ -62,13 +75,21 @@ int main(int argc, char *argv[])
 
     cout << "initialized" << endl;
 
-    xbee.configurePortFunction(Xbee::xbee_port::D0, Xbee::xbee_port_function::DigitalInput);
-    xbee.configurePortFunction(Xbee::xbee_port::D1, Xbee::xbee_port_function::DigitalOutputLow);
-    xbee.configurePortFunction(Xbee::xbee_port::D2, Xbee::xbee_port_function::DigitalOutputHigh);
+
+    xbee.configurePortFunction(pt::D0, pf::DigitalInput);
+    xbee.configurePortFunction(pt::D1, pf::DigitalOutputLow);
+    xbee.configurePortFunction(pt::D2, pf::DigitalOutputHigh);
+
+    try
+    {
+        xbee.configurePortFunction(pt::P0, pf::AnalogInput);
+    } catch (XbeeException &ex) {
+        cout << "tested: P0 cannot be set as Analog input " << ex.what() << endl;
+    }
 
     cout << "configured" << endl;
 
-    sleep(5);
+//    sleep(5);
 
     cout << "slept" << endl;
 
@@ -86,14 +107,20 @@ int main(int argc, char *argv[])
 
     cout << "print discovered devs:" << endl;
 
-    for (auto it=devs.begin(); it!=devs.end();it++)
+    try
     {
-        (*it)->print();
-        cout << Xbee::getTime() << ":sending remote AT cmd" << endl;
-        (*it)->configurePortFunction(Xbee::xbee_port::D1, Xbee::xbee_port_function::DigitalOutputLow);
-        (*it)->configurePortFunction(Xbee::xbee_port::D2, Xbee::xbee_port_function::DigitalOutputHigh);
-        cout << Xbee::getTime() << ":remote AT cmd sent" << endl;
-        cout << "HW version:" << (*it)->getHWVersionString() << endl;
+        for (auto it=devs.begin(); it!=devs.end();it++)
+        {
+            (*it)->print();
+            cout << "HW version:" << (*it)->getHWVersionString() << endl;
+            cout << "name:" << (*it)->getName() << endl;
+            cout << getTime() << ":sending remote AT cmd" << endl;
+            (*it)->configurePortFunction(pt::D1, pf::DigitalOutputLow);
+            (*it)->configurePortFunction(pt::D2, pf::DigitalOutputHigh);
+            cout << getTime() << ":remote AT cmd sent" << endl;
+        }
+    } catch (XbeeException &ex) {
+        cout << "remote xbee config exception:" << ex.what() << endl;
     }
 
     sleep(2);
@@ -101,6 +128,7 @@ int main(int argc, char *argv[])
     cout << "End main" << endl;
 
     cout << "HW version:" << xbee.getHWVersionString() << endl;
+    cout << "Name:" << xbee.getName() << endl;
     xbee.uninit();
     return 0;
 }

@@ -2,9 +2,8 @@
 #define XBEEREMOTE_H
 
 #include "Xbee.h"
-#include "XbeeFrame.h"
 #include "XbeeFrameRemoteCommandResponse.h"
-//#include "XbeeLocal.h"
+#include "XbeeCommand.h"
 
 #include <map>
 
@@ -16,23 +15,24 @@ class XbeeRemote : public Xbee
         XbeeRemote(XbeeAddress addr, XbeeLocal &local);
         virtual ~XbeeRemote();
 
-//        void initialize();
-//        virtual void responseReceived(XbeeFrameRemoteCommandResponse *frm);
-
-//        virtual void configurePortFunction(xbee_port port, xbee_port_function fnc);
+        virtual bool isInitialized();
+        virtual void configurePortFunction(XbeePort::pinID port, XbeePort::pinFunction fnc);
 
     protected:
         void sendCommand(std::string cmd, uint8_t param);
         void sendCommand(std::string cmd, response_handler &hnd);
         void sendCommand(std::string cmd, uint8_t param, response_handler &hnd);
 
-//        virtual uint64_t sendCommandWithResponseSync(std::string cmd, XbeeFrameCommand::returnType rt);
+        static void portConfigured(Xbee *xbee, XbeeCommand &cmd, XbeeCommandResponse &resp);
 
-//        static void portConfigured(xbee_port port, XbeeCommandResponse &resp);
-        static void portConfigured(Xbee *xbee, XbeeCommandResponse &resp);
+        static void setResponseByCommand(Xbee *xbee, XbeeCommand &cmd, XbeeCommandResponse &resp);
 
+        void handledRequest() { missingRequests--; }
     private:
         XbeeLocal &localXbee;
+        unsigned int missingRequests;
+
+        virtual void queryValue(std::string cmd);
 };
 
 #endif // XBEEREMOTE_H

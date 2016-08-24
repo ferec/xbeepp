@@ -3,7 +3,9 @@
 #include <stdio.h>
 
 #include <iostream>
+#include <sstream>
 #include <stdlib.h>
+#include <sys/time.h>
 
 #include "utils.h"
 
@@ -47,4 +49,15 @@ void hex_dump( const void *address, uint16_t length)
 			*q = '\0';								// null terminate ASCII characters
 			puts( linebuf);
    }
+}
+
+string getTime()
+{
+    timeval tv;
+    gettimeofday(&tv, 0);
+
+    stringstream ss;
+    ss << tv.tv_sec << "." << tv.tv_usec;
+
+    return ss.str();
 }

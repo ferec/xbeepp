@@ -27,6 +27,7 @@
 				<Option compiler="raspberry2" />
 				<Compiler>
 					<Add option="-std=c++11" />
+					<Add option="-g" />
 					<Add directory="../xbee" />
 				</Compiler>
 				<Linker>
@@ -81,6 +82,14 @@
 		<Unit filename="Xbee.h" />
 		<Unit filename="XbeeAddress.cpp" />
 		<Unit filename="XbeeAddress.h" />
+		<Unit filename="XbeeCommand.cpp" />
+		<Unit filename="XbeeCommand.h" />
+		<Unit filename="XbeeCommandException.cpp" />
+		<Unit filename="XbeeCommandException.h" />
+		<Unit filename="XbeeCommandResponse.cpp" />
+		<Unit filename="XbeeCommandResponse.h" />
+		<Unit filename="XbeeCommandResponseImpl.cpp" />
+		<Unit filename="XbeeCommandResponseImpl.h" />
 		<Unit filename="XbeeDiscoveryListener.h" />
 		<Unit filename="XbeeFrame.cpp" />
 		<Unit filename="XbeeFrame.h" />
@@ -100,6 +109,8 @@
 		<Unit filename="XbeeLocal.h" />
 		<Unit filename="XbeeLogger.cpp" />
 		<Unit filename="XbeeLogger.h" />
+		<Unit filename="XbeePort.cpp" />
+		<Unit filename="XbeePort.h" />
 		<Unit filename="XbeeRemote.cpp" />
 		<Unit filename="XbeeRemote.h" />
 		<Unit filename="test.cpp">

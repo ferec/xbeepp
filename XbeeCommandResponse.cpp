@@ -1,61 +1,59 @@
 #include "XbeeCommandResponse.h"
 
-#include "XbeeFrameCommandResponse.h"
-#include "XbeeFrameRemoteCommandResponse.h"
+#include <string>
+#include <sstream>
+#include <stdexcept>
 
-XbeeCommandResponse::XbeeCommandResponse(XbeeFrameCommandResponse *resp):local(true),cmd(resp->getCommand()),status(resp->getStatus()),type(XbeeFrameCommand::returnType::NONE)
-{
-    if (resp->hasByteData())
-    {
-        value.byteValue = resp->getByteValue();
-        type = XbeeFrameCommand::returnType::BYTE;
-        return;
-    }
-    if (resp->hasShortData())
-    {
-        value.shortValue = resp->getShortValue();
-        type = XbeeFrameCommand::returnType::SHORT;
-        return;
-    }
-    if (resp->hasWordData())
-    {
-        value.wordValue = resp->getWordValue();
-        type = XbeeFrameCommand::returnType::WORD;
-        return;
-
-    }
-    if (resp->hasLongData())
-    {
-        value.longValue = resp->getLongValue();
-        type = XbeeFrameCommand::returnType::LONG;
-        return;
-    }
-
-/*    if (resp->hasRawData())
-        resp->getRawValue(raw, XBEE_MAX_RESPONSE_DATA);*/
-}
-
-XbeeCommandResponse::XbeeCommandResponse(XbeeFrameRemoteCommandResponse *resp):local(false),cmd(resp->getCommand()),status(resp->getStatus()),type(XbeeFrameCommand::returnType::NONE)
-{
-    if (resp->hasByteData())
-        value.byteValue = resp->getByteValue();
-    if (resp->hasShortData())
-        value.shortValue = resp->getShortValue();
-    if (resp->hasWordData())
-        value.wordValue = resp->getWordValue();
-    if (resp->hasLongData())
-        value.longValue = resp->getLongValue();
-
-/*    if (resp->hasRawData())
-        resp->getRawValue(raw, XBEE_MAX_RESPONSE_DATA);*/
-}
+using namespace std;
 
 XbeeCommandResponse::~XbeeCommandResponse()
 {
     //dtor
 }
 
-Xbee::xbee_payload_at_cmd_status XbeeCommandResponse::getStatus()
+string XbeeCommandResponse::getStatusName(status stat)
 {
-    return status;
+    typedef status ps;
+    stringstream ss;
+    switch(stat)
+    {
+    case ps::OK:
+        return "Ok";
+    case ps::ERROR:
+        return "Error";
+    case ps::INVALID_CMD:
+        return "Invalid command";
+    case ps::INVALID_PARAM:
+        return "Invalid parameter";
+    default:
+            ss << "Unknown:" << (int)stat;
+            return ss.str();
+    }
+
+}
+
+const uint64_t XbeeCommandResponse::getValue()
+{
+    if (getReturnType() == XbeeCommand::returnType::RAW)
+        throw runtime_error("XbeeCommandResponse:raw value cannot be returned by getValue, try getRawValue");
+
+    typedef XbeeCommand::returnType rt;
+
+    switch (getReturnType())
+        {
+        case rt::NONE:
+            return 0;
+        case rt::BYTE:
+            return getByteValue();
+        case rt::SHORT:
+            return getShortValue();
+        case rt::WORD:
+            return getWordValue();
+        case rt::LONG:
+            return getLongValue();
+        default:
+            throw runtime_error("XbeeCommandResponse:unknown type returned");
+        }
+
+    throw runtime_error("XbeeCommandResponse:invalid return type");
 }

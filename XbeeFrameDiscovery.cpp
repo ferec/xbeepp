@@ -13,7 +13,7 @@ XbeeFrameDiscovery::XbeeFrameDiscovery(XbeeFrame::frame *frmData):XbeeFrameComma
 {
     disc1 = reinterpret_cast<discovery_data_1*>(frm_data->value);
 
-    uint16_t len = XbeeFrameCommandResponse::getReturnDataLength();
+    uint16_t len = XbeeFrameCommandResponse::getResponseDataSize();
 
     int i;
     for (i=0;i<=len-10;i++)
@@ -26,7 +26,7 @@ XbeeFrameDiscovery::XbeeFrameDiscovery(XbeeFrame::frame *frmData):XbeeFrameComma
 //    cout << "ni_len=" << i << endl;
 //    cout << "ni=" << disc1->ni << "XXX" << endl;
 
-    disc2 = reinterpret_cast<discovery_data_2*>(disc1->ni + i + 1);
+    disc2 = reinterpret_cast<const discovery_data_2*>(disc1->ni + i + 1);
 
 }
 
@@ -43,7 +43,7 @@ uint16_t XbeeFrameDiscovery::getAddrParent()
 
 void XbeeFrameDiscovery::print()
 {
-    XbeeFrameCommandResponse::print();
+//    XbeeFrameCommandResponse::print();
 
     stringstream ss;
 
@@ -60,16 +60,16 @@ void XbeeFrameDiscovery::print()
     log.doLog(ss.str(), XbeeLogger::Severity::Debug, "XbeeFrameDiscovery");
 
     ss.clear();
-    ss.str("Discovered ");
-    ss << getAddress().toString() << endl;
-    log.doLog(ss.str(), XbeeLogger::Severity::Debug, "XbeeFrameDiscovery");
+    ss.str(string());
+    ss << "Discovered " << getAddress().toString() << endl;
+    log.doLog(ss.str(), XbeeLogger::Severity::Info, "XbeeFrameDiscovery");
 
 //    XbeeLocal::hex_dump(disc1, getRawDataSize());
 }
 
 XbeeAddress XbeeFrameDiscovery::getAddress()
 {
-    uint32_t *ad = reinterpret_cast<uint32_t*>(disc1->addr);
+    const uint32_t *ad = reinterpret_cast<const uint32_t*>(disc1->addr);
     return XbeeAddress(be32toh(*ad), be32toh(*(ad+1)), disc1->addr_net[0]*0x100+disc1->addr_net[1]);
 }
 
@@ -104,9 +104,9 @@ string XbeeFrameDiscovery::getDeviceTypeName()
     }
 }
 
-uint8_t XbeeFrameDiscovery::getStatus()
+const XbeeCommandResponse::status XbeeFrameDiscovery::getStatus()
 {
-    return disc2->status;
+    return static_cast<XbeeCommandResponse::status>(disc2->status);
 }
 
 uint16_t XbeeFrameDiscovery::getProfileId()

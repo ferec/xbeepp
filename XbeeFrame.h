@@ -46,7 +46,6 @@ class XbeeFrame
         void validate();
 
     protected:
-//        XbeeFrame();
         XbeeFrame(XbeeFrame::frame *frmData);
         XbeeFrame(XbeeApiType type, uint16_t size);
     private:

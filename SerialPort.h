@@ -19,7 +19,7 @@ class SerialPort
     public:
         SerialPort();
 
-        bool isOpen() const { return devOpen; }
+        bool isOpen() const { return fd > 0; }
 
         void setBaudrate(speed_t speed); // baudrate defined in termios speed_t
         void setBits(uint8_t bits); // set character size mask 5-8 bits
@@ -42,7 +42,7 @@ class SerialPort
         virtual ~SerialPort();
     protected:
     private:
-        bool devOpen;
+//        bool devOpen;
         std::string devName;
 
         speed_t baudrate;

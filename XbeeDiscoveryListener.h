@@ -1,6 +1,7 @@
 #ifndef XBEEDISCOVERYLISTENER_H
 #define XBEEDISCOVERYLISTENER_H
 
+#include "XbeeRemote.h"
 
 class XbeeDiscoveryListener
 {
