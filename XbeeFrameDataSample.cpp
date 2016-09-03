@@ -55,9 +55,10 @@ void XbeeFrameDataSample::print()
         ss << "ADC3:" << getAnalogValue(3) << endl;
 
     log.doLog(ss.str(), XbeeLogger::Severity::Debug, "XbeeFrameDataSample");
+
     ss.clear();
-    ss.str("Samples received from ");
-    ss << getAddress().toString() << endl;
+    ss.str(string());
+    ss << "Samples received from " << getAddress().toString();
     log.doLog(ss.str(), XbeeLogger::Severity::Info, "XbeeFrameDataSample");
 
 //    XbeeLocal::hex_dump(disc1, getRawDataSize());

@@ -37,7 +37,7 @@ void XbeeFrameCommand::print()
     XbeeFrame::print();
 
     stringstream ss;
-    ss << "Command " << frm_data->cmd[0] << frm_data->cmd[1] << " (Frame ID:" << hex << (int)frm_data->frame_id << ")" << endl;
+    ss << "Command " << frm_data->cmd[0] << frm_data->cmd[1] << " (Frame ID:" << hex << (int)frm_data->frame_id << ")";
     XbeeLogger::GetInstance().doLog(ss.str(), XbeeLogger::Severity::Info, "XbeeFrameCommand");
 }
 

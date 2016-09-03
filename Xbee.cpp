@@ -15,11 +15,11 @@
 
 using namespace std;
 
-Xbee::Xbee():valueAP(0),valueAO(0),valueID(0),valueVR(0),valueHV(0),portFunction{},digitalValue(0),analogValue{0},initialized(false),lastCommand(nullptr),lastResponse(nullptr)
+Xbee::Xbee():name(addr.toString()),valueAP(0),valueAO(0),valueCE(0),valueID(0),valueVR(0),valueHV(0),valuePR(0),valueIR(0),valueIC(0),valueDH(0),valueDL(0),portFunction{},digitalValue(0),analogValue{0},initialized(false),lastCommand(nullptr),lastResponse(nullptr)
 {
 }
 
-Xbee::Xbee(XbeeAddress &_addr):addr(_addr),valueAP(0),valueAO(0),valueID(0),valueVR(0),valueHV(0),portFunction{},digitalValue(0),analogValue{0},initialized(false),lastCommand(nullptr),lastResponse(nullptr)
+Xbee::Xbee(XbeeAddress &_addr):addr(_addr),name(_addr.toString()),valueAP(0),valueAO(0),valueCE(0),valueID(0),valueVR(0),valueHV(0),valuePR(0),valueIR(0),valueIC(0),valueDH(0),valueDL(0),portFunction{},digitalValue(0),analogValue{0},initialized(false),lastCommand(nullptr),lastResponse(nullptr)
 {
 }
 
@@ -73,7 +73,12 @@ void Xbee::setAddress(uint32_t hi, uint32_t lo, uint16_t net)
     addr.setAddress(hi, lo, net);
 }
 
-bool Xbee::getDigitalValue(uint8_t index)
+XbeeAddress Xbee::getDestinationAddress()
+{
+    return XbeeAddress(valueDH, valueDL, 0);
+}
+
+/*bool Xbee::getDigitalValue(uint8_t index)
 {
     return digitalValue[index];
 }
@@ -92,7 +97,7 @@ void Xbee::setAnalogValue(uint8_t index, uint16_t value)
 {
     analogValue[index] = value;
 }
-
+*/
 XbeePort::pinFunction Xbee::getPortFunction(XbeePort::pinID port)
 {
     uint8_t index = static_cast<uint8_t>(port);
@@ -112,12 +117,69 @@ void Xbee::setPortFunction(XbeePort::pinID port, XbeePort::pinFunction cfg)
     portFunction[index]=cfg;
 }
 
+string Xbee::getNetRoleString()
+{
+    switch (getNetRole())
+    {
+    case xbeeNetRole::Coordinator:
+        return "Coordinator";
+    case xbeeNetRole::Router:
+        return "Router";
+    case xbeeNetRole::EndDevice:
+        return "End device";
+    default:
+        return "Unknown";
+    }
+}
+
+xbeeNetRole Xbee::getNetRole()
+{
+    uint8_t mod = valueVR/0x100;
+
+    switch (mod)
+    {
+    case 0x21:
+        return xbeeNetRole::Coordinator;
+    case 0x23:
+        return xbeeNetRole::Router;
+    case 0x29:
+        return xbeeNetRole::EndDevice;
+    }
+
+    if (getHWVersion() == xbeeVersion::S2C || getHWVersion() == xbeeVersion::S2CPro)
+        return valueCE?xbeeNetRole::Coordinator:xbeeNetRole::Router;
+
+    return xbeeNetRole::Unknown;
+}
+
+xbeeVersion Xbee::getHWVersion()
+{
+    uint8_t mod = valueHV/0x100;
+
+    switch(mod)
+    {
+    case 0x19:
+        return xbeeVersion::S2;
+    case 0x1A:
+        return xbeeVersion::S2Pro;
+    case 0x21:
+        return xbeeVersion::S2CPro;
+    case 0x22:
+    case 0x2d:
+    case 0x2e:
+    case 0x30:
+        return xbeeVersion::S2C;
+    }
+
+    return xbeeVersion::Unknown;
+}
+
 
 string Xbee::getHWVersionString()
 {
     stringstream ss;
 
-    ss << "XBee" << (isHWProVersion()?"-Pro ":" ") << getHWType();
+    ss << "XBee" << (isHWProVersion()?"-Pro ":" ") << getHWType() << "(" << hex << valueHV << ")";
 
     return ss.str();
 }
@@ -139,6 +201,9 @@ std::string Xbee::getHWType()
         return "S2";
     case 0x21:
     case 0x22:
+    case 0x2d:
+    case 0x2e:
+    case 0x30:
         return "S2C";
     }
 
@@ -151,7 +216,7 @@ void Xbee::initialize()
     {
         updateState();
     } catch (exception &e) {
-        XbeeLogger::GetInstance().doLog(string("Cant initialize ") + getAddress().toString() + ":" + e.what(), XbeeLogger::Severity::Warning, "XbeeLocal");
+        XbeeLogger::GetInstance().doLog(string("Cant initialize ") + getName() + ":" + e.what(), XbeeLogger::Severity::Warning, "XbeeLocal");
     }
 
     initialized = true;
@@ -160,25 +225,45 @@ void Xbee::initialize()
 
 void Xbee::updateState()
 {
-    typedef XbeeCommand::returnType rt;
+//    typedef XbeeCommand::returnType rt;
 
-/*    XbeeCommand cmdAP(XBEE_CMD_AP), cmdAO(XBEE_CMD_AO), cmdID(XBEE_CMD_ID), cmdVR(XBEE_CMD_VR), cmdHV(XBEE_CMD_HV);
-    setValueAP(sendCommandWithResponseSync(cmdAP, rt::BYTE));
-    setValueAO(sendCommandWithResponseSync(cmdAO, rt::BYTE));
-    setValueID(sendCommandWithResponseSync(cmdID, rt::LONG));
-    setValueVR(sendCommandWithResponseSync(cmdVR, rt::SHORT));
-    setValueHV(sendCommandWithResponseSync(cmdHV, rt::SHORT));*/
+    vector<string> cmds;
 
-    queryValue(XBEE_CMD_AP);
-    queryValue(XBEE_CMD_AO);
-    queryValue(XBEE_CMD_ID);
-    queryValue(XBEE_CMD_VR);
-    queryValue(XBEE_CMD_HV);
+    cmds.push_back(XBEE_CMD_AP);
+    cmds.push_back(XBEE_CMD_AO);
+    cmds.push_back(XBEE_CMD_ID);
+    cmds.push_back(XBEE_CMD_VR);
+    cmds.push_back(XBEE_CMD_HV);
+    cmds.push_back(XBEE_CMD_DH);
+    cmds.push_back(XBEE_CMD_DL);
+    cmds.push_back(XBEE_CMD_IR);
+    cmds.push_back(XBEE_CMD_IC);
 
-    typedef XbeePort::pinID pt;
+    for (auto it=cmds.begin(); it!=cmds.end(); it++)
+    {
+        queryValue(*it);
+        usleep(20*1000);
+    }
 
-    usleep(300*1000);
-    updatePortConfig(pt::P0);
+//    cout << "HW version:" << (int)getHWVersion() << endl;
+//    if (getHWVersion() == xbeeVersion::S2C || getHWVersion() == xbeeVersion::S2CPro)
+    queryValue(XBEE_CMD_CE);
+
+//    typedef XbeePort::pinID pt;
+
+//    usleep(1000*1000);
+
+    vector<XbeePort::pinID> pins = getPins();
+
+    for (auto it=pins.begin(); it!=pins.end(); it++)
+    {
+        updatePortConfig(*it);
+        usleep(20*1000);
+    }
+
+    usleep(1000*1000);
+
+/*    updatePortConfig(pt::P0);
     updatePortConfig(pt::P1);
     updatePortConfig(pt::P2);
     updatePortConfig(pt::D0);
@@ -186,7 +271,7 @@ void Xbee::updateState()
     updatePortConfig(pt::D2);
     updatePortConfig(pt::D3);
     updatePortConfig(pt::D4);
-    updatePortConfig(pt::D5);
+    updatePortConfig(pt::D5);*/
 
 /*   These ports are not available on XBee24-ZB
 
@@ -204,7 +289,7 @@ void Xbee::updatePortConfig(XbeePort::pinID p)
 {
     try
     {
-        queryValue(XbeeCommand::getCommandForPort(p));
+        queryValue(p);
     } catch (invalid_argument &iaex)
     {
         XbeeLogger::GetInstance().doLog(string("Cant get port configuration:") + XbeePort::getName(p), XbeeLogger::Severity::Warning, "XbeeLocal");
@@ -233,7 +318,7 @@ void Xbee::setHandler(uint8_t frmId, response_handler &hnd)
     if (callbackHandlers.count(frmId))
     {
         stringstream ss;
-        ss << "Previous response not consumed for frame ID " << (int)frmId << " for " << getAddress().toString();
+        ss << "Previous response not consumed for frame ID " << (int)frmId << " for " << getName();
         XbeeLogger::GetInstance().doLog(ss.str(), XbeeLogger::Severity::Warning, "Xbee response handler");
     }
 
@@ -257,7 +342,7 @@ void Xbee::setResponse(Xbee *xbee, XbeeCommand &cmd, XbeeCommandResponse &resp)
 
     stringstream ss;
 
-    ss << "command response on " << xbee->getAddress().toString() << " to command " << xbee->lastResponse->getCommandString() << endl;
+    ss << "command response on " << xbee->getName() << " to command " << xbee->lastResponse->getCommandString();
     XbeeLogger::GetInstance().doLog(ss.str(), XbeeLogger::Severity::Info, "Xbee response handler");
 }
 
@@ -303,6 +388,7 @@ uint64_t Xbee::sendCommandWithResponseSync(XbeeCommand &cmd, uint8_t param, Xbee
 //    cout << "send command" << endl;
     sendCommand(cmd.getCommand(), param, h);
 
+//    cout << "waiting for response" << endl;
     return waitforResponseWithCleanup();
 }
 
@@ -352,16 +438,98 @@ void Xbee::configurePortFunction(XbeePort::pinID port, XbeePort::pinFunction fnc
 
 //        cout << " configurePortFunction " << endl;
         sendCommandWithResponseSync(cmd, static_cast<uint8_t>(fnc), XbeeCommand::returnType::NONE);
-        setPortFunction(port, fnc);
+//        setPortFunction(port, fnc);
 
         stringstream ss;
-        ss << "Port " << XbeePort::getName(cmd.getPort()) << " configured as " << XbeePort::getFunctionName(cmd.getPortFunction()) << " successfully on " << getAddress().toString();
+        ss << "Port " << XbeePort::getName(cmd.getPort()) << " configured as " << XbeePort::getFunctionName(cmd.getPortFunction()) << " successfully on " << getName();
         XbeeLogger::GetInstance().doLog(ss.str(), XbeeLogger::Severity::Info, "XbeeLocal");
     } catch (XbeeException &ex) {
         throw ex;
     } catch (exception &e) {
         stringstream ss;
-        ss << "Port " << XbeePort::getName(port) << " could not be configured as " << XbeePort::getFunctionName(fnc) << " on " << getAddress().toString() << ":" << e.what();
+        ss << "Port " << XbeePort::getName(port) << " could not be configured as " << XbeePort::getFunctionName(fnc) << " on " << getName() << ":" << e.what();
         XbeeLogger::GetInstance().doLog(ss.str(), XbeeLogger::Severity::Warning, "XbeeLocal");
     }
+}
+
+vector<XbeePort::pinID> Xbee::getPins()
+{
+
+    return XbeePort::getPins(getHWVersion());
+}
+
+bool Xbee::getPullupPin(XbeePort::pinID port)
+{
+    throw runtime_error("not implemented");
+}
+
+bool Xbee::setValueByCommand(XbeeCommand &cmd, XbeeCommandResponse &resp)
+{
+    if (cmd.getCommand() == XBEE_CMD_AP)
+    {
+        setValueAP(resp.getByteValue());
+        return true;
+    }
+
+    if (cmd.getCommand() == XBEE_CMD_AO)
+    {
+        setValueAO(resp.getByteValue());
+        return true;
+    }
+
+    if (cmd.getCommand() == XBEE_CMD_ID)
+    {
+        setValueID(resp.getLongValue());
+        return true;
+    }
+
+    if (cmd.getCommand() == XBEE_CMD_VR)
+    {
+        setValueVR(resp.getShortValue());
+        return true;
+    }
+
+    if (cmd.getCommand() == XBEE_CMD_HV)
+    {
+        setValueHV(resp.getShortValue());
+        return true;
+    }
+
+    if (cmd.getCommand() == XBEE_CMD_PR)
+    {
+        setValuePR(resp.getShortValue());
+        return true;
+    }
+
+    if (cmd.getCommand() == XBEE_CMD_DH)
+    {
+        setValueDH(resp.getWordValue());
+        return true;
+    }
+
+    if (cmd.getCommand() == XBEE_CMD_DL)
+    {
+        setValueDL(resp.getWordValue());
+        return true;
+    }
+
+    if (cmd.getCommand() == XBEE_CMD_IR)
+    {
+        setValueIR(resp.getShortValue());
+        return true;
+    }
+
+    if (cmd.getCommand() == XBEE_CMD_IC)
+    {
+        setValueIC(resp.getShortValue());
+        return true;
+    }
+
+    if (cmd.getCommand() == XBEE_CMD_CE)
+    {
+        setValueCE(resp.getByteValue());
+        return true;
+    }
+
+    return false;
 }

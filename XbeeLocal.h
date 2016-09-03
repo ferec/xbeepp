@@ -76,7 +76,7 @@ class XbeeLocal:public Xbee
         std::vector<XbeeRemote*> discovered;
         std::vector<XbeeDiscoveryListener*> discoveryListeners;
 
-        std::mutex mSerial;
+        std::mutex mSerialRd, mSerialWr;
 
         void runPreinitCommand(std::string cmd, XbeeFrameCommandResponse &resp);
         uint64_t sendPreinitCommandWithResponseSync(std::string cmd, XbeeCommand::returnType);
@@ -84,6 +84,7 @@ class XbeeLocal:public Xbee
         void readLocalResponseFrameData(XbeeFrameCommandResponse &resp);
 
         virtual void queryValue(std::string value);
+        virtual void queryValue(XbeePort::pinID pin);
 };
 
 #endif // XBEE_LOCAL_H

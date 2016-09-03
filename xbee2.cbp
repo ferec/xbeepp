@@ -91,6 +91,9 @@
 		<Unit filename="XbeeCommandResponseImpl.cpp" />
 		<Unit filename="XbeeCommandResponseImpl.h" />
 		<Unit filename="XbeeDiscoveryListener.h" />
+		<Unit filename="XbeeEnums.h" />
+		<Unit filename="XbeeException.cpp" />
+		<Unit filename="XbeeException.h" />
 		<Unit filename="XbeeFrame.cpp" />
 		<Unit filename="XbeeFrame.h" />
 		<Unit filename="XbeeFrameCommand.cpp" />
@@ -113,10 +116,7 @@
 		<Unit filename="XbeePort.h" />
 		<Unit filename="XbeeRemote.cpp" />
 		<Unit filename="XbeeRemote.h" />
-		<Unit filename="test.cpp">
-			<Option target="intel" />
-			<Option target="arm" />
-		</Unit>
+		<Unit filename="test.cpp" />
 		<Unit filename="utils.cpp" />
 		<Unit filename="utils.h" />
 		<Extensions>

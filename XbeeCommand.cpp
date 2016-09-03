@@ -60,6 +60,10 @@ string XbeeCommand::getCommandForPort(XbeePort::pinID port)
         return CMD(D4);
     case pt::D5:
         return CMD(D5);
+    case pt::D6:
+        return CMD(D6);
+    case pt::D7:
+        return CMD(D7);
     case pt::D8:
         return CMD(D8);
     case pt::NONE:

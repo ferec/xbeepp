@@ -2,6 +2,9 @@
 #define XBEEPORT_H_INCLUDED
 
 #include <string>
+#include <vector>
+
+#include "XbeeEnums.h"
 
 class XbeePort
 {
@@ -36,6 +39,8 @@ class XbeePort
             AD3 = D3,
             D4 = 14, // DIO4, SPI_MOSI (Through-hole module only)
             D5 = 15, // DIO5, Associate configuration
+            D6 = 16, // DIO5, Associate configuration
+            D7 = 17, // DIO5, Associate configuration
             D8 = 18, // DIO8, DTR/Slp_Rq
             NONE = 0xff
         };
@@ -47,6 +52,11 @@ class XbeePort
         static std::string getFunctionName(pinFunction fnc);
         static std::string getName(XbeePort::pinID port);
 
+        static std::vector<pinID> getPins(xbeeVersion hv);
+
+    private:
+        pinID pin;
+        pinFunction fnc;
 };
 
 #endif // XBEEPORT_H_INCLUDED

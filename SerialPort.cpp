@@ -15,7 +15,7 @@
 using namespace std;
 
 SerialPort::SerialPort():baudrate(XBEE_DEFAULT_BAUDRATE),bits(XBEE_DEFAULT_BITS),parity(XBEE_DEFAULT_PARITY),parityOdd(false),
-    dblStop(XBEE_DEFAULT_STOP_BITS), flowCtrl(XBEE_DEFAULT_FLOWCONTROL),timeout(XBEE_DEFAULT_TIMEOUT),fd(0)
+    dblStop(XBEE_DEFAULT_STOP_BITS), flowCtrl(XBEE_DEFAULT_FLOWCONTROL),timeout(XBEE_DEFAULT_TIMEOUT),fd(-1)
 {
 }
 
@@ -139,9 +139,10 @@ void SerialPort::initialize()
 
 void SerialPort::uninitialize()
 {
-    if (fd > 0)
+    if (fd >= 0)
     {
         close(fd);
+        fd = -1;
     }
 }
 
@@ -158,6 +159,10 @@ void SerialPort::writeData(uint8_t *buffer, size_t len)
     do
     {
         l = write(fd, buffer+have, len-have);
+
+        if (!isOpen())
+            throw runtime_error("file descriptor closed");
+
         if (l>0)
             have+=l;
     } while((l == -1 && errno == EAGAIN) || have < len);
@@ -181,7 +186,7 @@ void SerialPort::readData(uint8_t *buffer, size_t len)
     {
         l = read(fd, buffer+have, len-have);
 
-        if (l==0)
+        if (!isOpen())
             throw runtime_error("file descriptor closed");
 
         if (l>0)
@@ -210,6 +215,10 @@ uint8_t SerialPort::readByte()
     do
     {
         l = read(fd, &buffer, 1);
+
+        if (!isOpen())
+            throw runtime_error("file descriptor closed");
+
     } while(l == -1 && errno == EAGAIN);
 
     if (l == -1)
@@ -230,6 +239,9 @@ void SerialPort::wait4Char(char c)
     {
         l = read(fd, &buffer, 1);
 
+        if (!isOpen())
+            return;
+
         if (l>0)
             i++;
 
@@ -241,7 +253,7 @@ void SerialPort::wait4Char(char c)
     {
         stringstream ss;
         ss << "read " << (i-1) << " chars before frame start";
-        XbeeLogger::GetInstance().doLog("" + 1, XbeeLogger::Severity::Info, "SerialPort");
+        XbeeLogger::GetInstance().doLog(ss.str(), XbeeLogger::Severity::Info, "SerialPort");
     }
 
     if (l == -1)

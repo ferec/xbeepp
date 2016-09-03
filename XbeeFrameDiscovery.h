@@ -19,9 +19,9 @@ class XbeeFrameDiscovery : public XbeeFrameCommandResponse
             char ni[0];
         };
 
-        enum class deviceType:uint8_t {
+/*        enum class deviceType:uint8_t {
             Coordinator=0, Router=1, EndDevice=2
-        };
+        };*/
 
         struct discovery_data_2 {
             uint8_t addr_parent[2];
@@ -34,8 +34,8 @@ class XbeeFrameDiscovery : public XbeeFrameCommandResponse
         XbeeAddress getAddress();
         std::string getNetworkID();
         uint16_t getAddrParent();
-        deviceType getDeviceType();
-        std::string getDeviceTypeName();
+        xbeeNetRole getNetRole();
+        std::string getNetRoleName();
         virtual const XbeeCommandResponse::status getStatus();
         uint16_t getProfileId();
         uint16_t getManufacturer();

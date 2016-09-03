@@ -27,12 +27,13 @@ class XbeeRemote : public Xbee
 
         static void setResponseByCommand(Xbee *xbee, XbeeCommand &cmd, XbeeCommandResponse &resp);
 
-        void handledRequest() { missingRequests--; }
+        void handledRequest() { if (missingRequests > 0) missingRequests--; }
     private:
         XbeeLocal &localXbee;
         unsigned int missingRequests;
 
         virtual void queryValue(std::string cmd);
+        virtual void queryValue(XbeePort::pinID pin);
 };
 
 #endif // XBEEREMOTE_H

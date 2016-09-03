@@ -49,7 +49,7 @@ void XbeeFrameDiscovery::print()
 
     ss << "Network ID:" << getNetworkID() << endl;
     ss << "Parent:" << hex << getAddrParent() << endl;
-    ss << "Device type:" << getDeviceTypeName() << endl;
+    ss << "Device type:" << getNetRoleName() << endl;
     ss << "Device status:" << (int)getStatus() << endl;
     ss << "Profile ID:" << getProfileId() << endl;
     ss << "Manufacturer:" << getManufacturer() << endl;
@@ -61,7 +61,7 @@ void XbeeFrameDiscovery::print()
 
     ss.clear();
     ss.str(string());
-    ss << "Discovered " << getAddress().toString() << endl;
+    ss << "Discovered " << getAddress().toString() << "(" << getNetRoleName() << ")";
     log.doLog(ss.str(), XbeeLogger::Severity::Info, "XbeeFrameDiscovery");
 
 //    XbeeLocal::hex_dump(disc1, getRawDataSize());
@@ -78,7 +78,7 @@ string XbeeFrameDiscovery::getNetworkID()
     return string(disc1->ni);
 }
 
-XbeeFrameDiscovery::deviceType XbeeFrameDiscovery::getDeviceType()
+xbeeNetRole XbeeFrameDiscovery::getNetRole()
 {
     if (disc2->dev_type < 0 || disc2->dev_type > 2)
     {
@@ -86,18 +86,18 @@ XbeeFrameDiscovery::deviceType XbeeFrameDiscovery::getDeviceType()
         ss << "Invalid device type " << hex << (int)disc2->dev_type;
         throw runtime_error(ss.str());
     }
-    return static_cast<XbeeFrameDiscovery::deviceType>(disc2->dev_type);
+    return static_cast<xbeeNetRole>(disc2->dev_type);
 }
 
-string XbeeFrameDiscovery::getDeviceTypeName()
+string XbeeFrameDiscovery::getNetRoleName()
 {
-    switch (getDeviceType())
+    switch (getNetRole())
     {
-    case deviceType::Coordinator:
+    case xbeeNetRole::Coordinator:
         return "Coordinator";
-    case deviceType::Router:
+    case xbeeNetRole::Router:
         return "Router";
-    case deviceType::EndDevice:
+    case xbeeNetRole::EndDevice:
         return "End device";
     default:
         return "Unknown";

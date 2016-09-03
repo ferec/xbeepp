@@ -8,6 +8,7 @@
 
 #include <sstream>
 #include <stdexcept>
+#include <iostream>
 
 using namespace std;
 
@@ -67,46 +68,27 @@ void XbeeRemote::configurePortFunction(XbeePort::pinID port, XbeePort::pinFuncti
 
 void XbeeRemote::setResponseByCommand(Xbee *xbee, XbeeCommand &cmd, XbeeCommandResponse &resp)
 {
+    if (xbee == nullptr)
+        throw runtime_error("setResponseByCommand:xbee null");
+
     XbeeRemote *remote = dynamic_cast<XbeeRemote*>(xbee);
-    if (remote != nullptr && cmd.getCommand() == XBEE_CMD_AP)
-        remote->setValueAP(resp.getByteValue());
-    if (remote != nullptr && cmd.getCommand() == XBEE_CMD_AO)
-        remote->setValueAO(resp.getByteValue());
-    if (remote != nullptr && cmd.getCommand() == XBEE_CMD_ID)
-        remote->setValueID(resp.getLongValue());
-    if (remote != nullptr && cmd.getCommand() == XBEE_CMD_VR)
-        remote->setValueVR(resp.getShortValue());
-    if (remote != nullptr && cmd.getCommand() == XBEE_CMD_HV)
-        remote->setValueHV(resp.getShortValue());
 
-    try
-    {
-        XbeePort::pinID pin = XbeeCommand::getPortForCommand(cmd.getCommand());
-        remote->setPortFunction(pin, static_cast<XbeePort::pinFunction>(resp.getByteValue()));
-        remote->handledRequest();
-    } catch (XbeeException &ex) {
-        XbeeLogger::GetInstance().doLog(string("setResponseByCommand:") + ex.what(), XbeeLogger::Severity::Info, "XbeeRemote");
-    }
+    if (remote == nullptr)
+        throw runtime_error("setResponseByCommand:xbee not of type expected");
 
-/*    if (cmd.getCommand() == XBEE_CMD_P0)
-        remote->setPortFunction(XbeePort::pinID::P0, static_cast<XbeePort::pinFunction>(resp.getByteValue()));
-    if (cmd.getCommand() == XBEE_CMD_P1)
-        remote->setPortFunction(XbeePort::pinID::P1, static_cast<XbeePort::pinFunction>(resp.getByteValue()));
-    if (cmd.getCommand() == XBEE_CMD_P2)
-        remote->setPortFunction(XbeePort::pinID::P2, static_cast<XbeePort::pinFunction>(resp.getByteValue()));
-    if (cmd.getCommand() == XBEE_CMD_D0)
-        remote->setPortFunction(XbeePort::pinID::D0, static_cast<XbeePort::pinFunction>(resp.getByteValue()));
-    if (cmd.getCommand() == XBEE_CMD_D1)
-        remote->setPortFunction(XbeePort::pinID::D1, static_cast<XbeePort::pinFunction>(resp.getByteValue()));
-    if (cmd.getCommand() == XBEE_CMD_D2)
-        remote->setPortFunction(XbeePort::pinID::D2, static_cast<XbeePort::pinFunction>(resp.getByteValue()));
-    if (cmd.getCommand() == XBEE_CMD_D3)
-        remote->setPortFunction(XbeePort::pinID::D3, static_cast<XbeePort::pinFunction>(resp.getByteValue()));
-    if (cmd.getCommand() == XBEE_CMD_D4)
-        remote->setPortFunction(XbeePort::pinID::D4, static_cast<XbeePort::pinFunction>(resp.getByteValue()));
-    if (cmd.getCommand() == XBEE_CMD_D5)
-        remote->setPortFunction(XbeePort::pinID::D5, static_cast<XbeePort::pinFunction>(resp.getByteValue()));*/
 
+    XbeePort::pinID pin = cmd.getPort();
+    if (pin == XbeePort::pinID::NONE)
+        remote->setValueByCommand(cmd, resp);
+    else
+        try
+        {
+            remote->setPortFunction(pin, static_cast<XbeePort::pinFunction>(resp.getByteValue()));
+        } catch (XbeeException &ex) {
+            XbeeLogger::GetInstance().doLog(string("setResponseByCommand:") + ex.what(), XbeeLogger::Severity::Info, "XbeeRemote");
+        }
+    remote->handledRequest();
+//    cout << remote->getName() << " handled for " << cmd.getCommand() << ":" << remote->missingRequests << endl;
 }
 
 bool XbeeRemote::isInitialized()
@@ -119,6 +101,25 @@ void XbeeRemote::queryValue(string value)
     XbeeCommand cmd(value);
     response_handler h = { setResponseByCommand, cmd };
 
-    missingRequests++;
+    if (!isInitialized())
+    {
+        missingRequests++;
+//        cout << getName() << " increment for " << value << ":" << missingRequests << endl;
+    }
+
     sendCommand(value, h);
+}
+
+void XbeeRemote::queryValue(XbeePort::pinID pin)
+{
+    XbeeCommand cmd(pin);
+    response_handler h = { setResponseByCommand, cmd };
+
+    if (!isInitialized())
+    {
+        missingRequests++;
+//        cout << getName() << " increment for " << cmd.getCommand() << ":" << missingRequests << endl;
+    }
+
+    sendCommand(cmd.getCommand(), h);
 }

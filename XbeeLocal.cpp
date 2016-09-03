@@ -28,7 +28,7 @@ XbeeLocal::~XbeeLocal()
 
 void XbeeLocal::writeFrame(XbeeFrame &frame)
 {
-    lock_guard<mutex> blWr(mSerial);
+    lock_guard<mutex> blWr(mSerialWr);
 
     port.writeData(reinterpret_cast<unsigned char*>(&frame.frm), frame.getFullSize());
     frame.print();
@@ -37,7 +37,7 @@ void XbeeLocal::writeFrame(XbeeFrame &frame)
 void XbeeLocal::readFrameData(XbeeFrame::frame *buffer)
 {
 //    cout << "starting readFrameData" << endl;
-    lock_guard<mutex> blRd(mSerial);
+    lock_guard<mutex> blRd(mSerialRd);
     XbeeFrame::frame *header = reinterpret_cast<XbeeFrame::frame*>(buffer);
     port.wait4Char(XBEE_PACKET_START);
 
@@ -189,9 +189,14 @@ void XbeeLocal::processFrame(XbeeFrame *frm)
     XbeeFrameDataSample *sample = dynamic_cast<XbeeFrameDataSample*>(frm);
     if (sample != NULL)
     {
+        frm->print();
+        return;
     }
 
-    frm->print();
+    stringstream ss;
+
+    ss << "Unexpected type frame type " << (int)frm->getType() << endl;
+    XbeeLogger::GetInstance().doLog(ss.str(), XbeeLogger::Severity::Warning, "XbeeLocal");
 }
 
 void XbeeLocal::initialize()
@@ -208,11 +213,18 @@ void XbeeLocal::initialize()
 //    XbeeCommand cmdSH(XBEE_CMD_SH), cmdSL(XBEE_CMD_SL), cmdMY(XBEE_CMD_MY);
 
     typedef XbeeCommand::returnType rt;
+
     uint32_t sh = sendPreinitCommandWithResponseSync(XBEE_CMD_SH, rt::WORD);
     uint32_t sl = sendPreinitCommandWithResponseSync(XBEE_CMD_SL, rt::WORD);
     uint32_t my = sendPreinitCommandWithResponseSync(XBEE_CMD_MY, rt::SHORT);
 
+
     setAddress(sh, sl, my);
+
+//    uint32_t dh = sendPreinitCommandWithResponseSync(XBEE_CMD_DH, rt::WORD);
+//    uint32_t dl = sendPreinitCommandWithResponseSync(XBEE_CMD_DL, rt::WORD);
+
+//    setDestinationAddress(dh, dl);
 
 //    XbeeCommand cmdNI(XBEE_CMD_NI);
 
@@ -233,6 +245,7 @@ void XbeeLocal::initialize()
 void XbeeLocal::uninit()
 {
     stop = true;
+    port.uninitialize();
     pthread_join(thReader, NULL);
 }
 
@@ -269,10 +282,13 @@ void XbeeLocal::sendCommand(std::string cmd, uint8_t param, response_handler &hn
     uint8_t frmId = nextFrameId();
     XbeeFrameCommand req(cmd, param, frmId);
 
+//    cout << "send command1" << endl;
     if (hnd.cb != NULL)
         setHandler(frmId, hnd);
 
+//    cout << "send command2" << endl;
     writeFrame(req);
+//    cout << "send command3" << endl;
 }
 
 uint64_t XbeeLocal::sendCommandWithResponseSync(XbeeCommand &cmd, XbeeCommand::returnType rt)
@@ -301,7 +317,7 @@ void XbeeLocal::sendPreinitCommandWithResponseSync(string cmd, uint8_t buf[], si
 
     size_t len = resp.getRawValue(buf, buflen-1);
 
-    cout << "raw size:" << len << endl;
+//    cout << "raw size:" << len << endl;
     buf[len] = 0;
     return ;
 }
@@ -386,27 +402,28 @@ void XbeeLocal::addDiscoveryListener(XbeeDiscoveryListener *l)
     discoveryListeners.push_back(l);
 }
 
-void XbeeLocal::queryValue(std::string value)
+void XbeeLocal::queryValue(XbeePort::pinID pin)
 {
-    typedef XbeeCommand::returnType rt;
-
-    if (value == XBEE_CMD_AP)
-        setValueAP(sendPreinitCommandWithResponseSync(value, rt::BYTE));
-    if (value == XBEE_CMD_AO)
-        setValueAO(sendPreinitCommandWithResponseSync(value, rt::BYTE));
-    if (value == XBEE_CMD_ID)
-        setValueID(sendPreinitCommandWithResponseSync(value, rt::LONG));
-    if (value == XBEE_CMD_VR)
-        setValueVR(sendPreinitCommandWithResponseSync(value, rt::SHORT));
-    if (value == XBEE_CMD_HV)
-        setValueHV(sendPreinitCommandWithResponseSync(value, rt::SHORT));
-
+    XbeeCommand cmd(pin);
+    XbeeFrameCommandResponse resp;
+    runPreinitCommand(cmd.getCommand(), resp);
 
     try
     {
-        XbeePort::pinID pin = XbeeCommand::getPortForCommand(value);
-        setPortFunction(pin, static_cast<XbeePort::pinFunction>(sendPreinitCommandWithResponseSync(value, rt::BYTE)));
+        setPortFunction(pin, static_cast<XbeePort::pinFunction>(resp.getByteValue()));
     } catch (XbeeException &ex) {
         XbeeLogger::GetInstance().doLog(string("setResponseByCommand:") + ex.what(), XbeeLogger::Severity::Info, "XbeeLocal");
     }
+}
+
+void XbeeLocal::queryValue(std::string sCmd)
+{
+//    typedef XbeeCommand::returnType rt;
+
+    XbeeCommand cmd(sCmd);
+    XbeeFrameCommandResponse resp;
+    runPreinitCommand(sCmd, resp);
+
+    setValueByCommand(cmd, resp);
+
 }

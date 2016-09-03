@@ -101,15 +101,7 @@ void XbeeFrameCommandResponse::print()
     XbeeLogger &log = XbeeLogger::GetInstance();
 
     stringstream ss;
-    ss << "Response to " << frm_data->cmd[0] << frm_data->cmd[1] << " with result " << XbeeCommandResponse::getStatusName(getStatus()) << " (Frame ID:" << hex << (int)frm_data->frame_id << ")" << endl;
-    log.doLog(ss.str(), XbeeLogger::Severity::Info, "XbeeFrameCommandResponse");
-
-    ss.clear();
-    ss.str(string());
-
-    ss << "Frame ID:" << hex << (int)frm_data->frame_id << endl;
-    ss << "Command:" << frm_data->cmd[0] << frm_data->cmd[1] << endl;
-    ss << "Status:" << XbeeCommandResponse::getStatusName(getStatus()) << endl;
+    ss << "Response to " << frm_data->cmd[0] << frm_data->cmd[1] << " with result " << XbeeCommandResponse::getStatusName(getStatus()) << " (Frame ID:" << hex << (int)frm_data->frame_id << ")";
 
     try
     {
@@ -118,28 +110,38 @@ void XbeeFrameCommandResponse::print()
         switch (getReturnType())
         {
         case rt::NONE:
+            ss << "no value" << (unsigned int)getByteValue();
             break;
         case rt::BYTE:
-            ss << "Value(byte):" << (unsigned int)getByteValue() << endl;
+            ss << " Value(byte):" << (unsigned int)getByteValue();
             break;
         case rt::SHORT:
-            ss << "Value(short):" << (unsigned int)getShortValue() << endl;
+            ss << " Value(short):" << (unsigned int)getShortValue();
             break;
         case rt::WORD:
-            ss << "Value(4byte):" << (unsigned int)getWordValue() << endl;
+            ss << " Value(4byte):" << (unsigned int)getWordValue();
             break;
         case rt::LONG:
-            ss << "Value(8byte):" << (unsigned int)getLongValue() << endl;
+            ss << " Value(8byte):" << (unsigned int)getLongValue();
             break;
         case rt::RAW:
             s.assign(reinterpret_cast<char*>(frm_data->value), getResponseDataSize());
-            ss << "raw data:" << s;
+            ss << " raw data:" << s;
 
-            log.doLog(ss.str(), XbeeLogger::Severity::Info, "XbeeFrameCommandResponse");
+//            log.doLog(ss.str(), XbeeLogger::Severity::Info, "XbeeFrameCommandResponse");
             break;
         default:
-            ss << "invalid type" << endl;
+            ss << "invalid type";
         }
+
+        log.doLog(ss.str(), XbeeLogger::Severity::Info, "XbeeFrameCommandResponse");
+
+        ss.clear();
+        ss.str(string());
+
+        ss << "Frame ID:" << hex << (int)frm_data->frame_id << endl;
+        ss << "Command:" << frm_data->cmd[0] << frm_data->cmd[1] << endl;
+        ss << "Status:" << XbeeCommandResponse::getStatusName(getStatus()) << endl;
 
         log.doLog(ss.str(), XbeeLogger::Severity::Debug, "XbeeFrameCommandResponse");
     } catch (exception &e) {

@@ -10,9 +10,15 @@
 #define XBEE_CMD_HV "HV"
 #define XBEE_CMD_SH "SH"
 #define XBEE_CMD_SL "SL"
+#define XBEE_CMD_DH "DH"
+#define XBEE_CMD_DL "DL"
 #define XBEE_CMD_MY "MY"
 #define XBEE_CMD_ND "ND"
 #define XBEE_CMD_NI "NI"
+#define XBEE_CMD_PR "PR"
+#define XBEE_CMD_IR "IR"
+#define XBEE_CMD_IC "IC"
+#define XBEE_CMD_CE "CE"
 
 #define XBEE_CMD_P0 "P0"
 #define XBEE_CMD_P1 "P1"
@@ -30,6 +36,8 @@
 #define XBEE_CMD_D3 "D3"
 #define XBEE_CMD_D4 "D4"
 #define XBEE_CMD_D5 "D5"
+#define XBEE_CMD_D6 "D6"
+#define XBEE_CMD_D7 "D7"
 #define XBEE_CMD_D8 "D8"
 
 #define CMD(ID) XBEE_CMD_ ## ID
@@ -48,7 +56,7 @@ class XbeeCommand
 
         XbeeCommand();
         XbeeCommand(const std::string cmd);
-        XbeeCommand(const XbeePort::pinID port, const XbeePort::pinFunction pf);
+        XbeeCommand(const XbeePort::pinID port, const XbeePort::pinFunction pf = XbeePort::pinFunction::None);
         virtual ~XbeeCommand();
 
         virtual const std::string getCommand() { return cmd; }

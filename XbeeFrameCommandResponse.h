@@ -38,15 +38,16 @@ class XbeeFrameCommandResponse : public XbeeFrame, public XbeeCommandResponse
 
         bool hasRawData();
 
+        uint8_t getByteValue();
+        uint16_t getShortValue();
+        uint32_t getWordValue();
+        uint64_t getLongValue();
+
 //        uint8_t getCrc();
     protected:
         XbeeFrameCommandResponse(XbeeFrame::frame *frmData);
         frame_response *frm_data;
 
-        uint8_t getByteValue();
-        uint16_t getShortValue();
-        uint32_t getWordValue();
-        uint64_t getLongValue();
 
     private:
 };

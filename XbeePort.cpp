@@ -63,10 +63,50 @@ string XbeePort::getName(XbeePort::pinID port)
         return "DIO4";
     case pt::D5:
         return "DIO5";
+    case pt::D6:
+        return "DIO6";
+    case pt::D7:
+        return "DIO7";
     case pt::D8:
         return "DIO8";
     case pt::NONE:
         return "NONE";
     }
     return "unknown";
+}
+
+vector<XbeePort::pinID> XbeePort::getPins(xbeeVersion hv)
+{
+    vector<XbeePort::pinID> pins;
+
+    switch (hv)
+    {
+    case xbeeVersion::S2C:
+    case xbeeVersion::S2CPro:
+        pins.push_back(pinID::P3);
+        pins.push_back(pinID::P4);
+        pins.push_back(pinID::P5);
+        pins.push_back(pinID::P6);
+        pins.push_back(pinID::P7);
+        pins.push_back(pinID::P8);
+        pins.push_back(pinID::P9);
+        pins.push_back(pinID::D8);
+    default:
+    case xbeeVersion::S2:
+    case xbeeVersion::S2Pro:
+        pins.push_back(pinID::P0);
+        pins.push_back(pinID::P1);
+        pins.push_back(pinID::P2);
+        pins.push_back(pinID::D0);
+        pins.push_back(pinID::D1);
+        pins.push_back(pinID::D2);
+        pins.push_back(pinID::D3);
+        pins.push_back(pinID::D4);
+        pins.push_back(pinID::D5);
+        pins.push_back(pinID::D6);
+        pins.push_back(pinID::D7);
+    }
+
+
+    return pins;
 }
